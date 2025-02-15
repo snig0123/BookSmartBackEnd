@@ -1,4 +1,4 @@
-using BookSmartBackEnd.BusinessLogic.User.Interfaces;
+using BookSmartBackEnd.BusinessLogic.Interfaces;
 using BookSmartBackEnd.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;

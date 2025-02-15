@@ -1,34 +1,47 @@
-using BookSmartBackEnd.BusinessLogic.User.Interfaces;
 using BookSmartBackEnd.Models;
 using BookSmartBackEndDatabase;
 using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
+using BookSmartBackEnd.BusinessLogic.Interfaces;
+using BookSmartBackEndDatabase.Models;
 
-namespace BookSmartBackEnd.BusinessLogic.User
+namespace BookSmartBackEnd.BusinessLogic
 {
     public class UserBll : IUserBll
     {
+        private BookSmartContext _bookSmartContext;
+        public UserBll(IServiceProvider serviceProvider)
+        {
+            _bookSmartContext = serviceProvider.GetService<BookSmartContext>();
+        }
         public void RegisterUser(PostRegisterModel data)
         {
-            BookSmartContext db = new BookSmartContext();
-            db.Add(new BookSmartBackEndDatabase.User
+            _bookSmartContext.Add(new User
             {
                 USER_ID = Guid.NewGuid(),
+                USER_TITLE = "Mr",
                 USER_FORENAME = data.FORENAME,
                 USER_SURNAME = data.SURNAME,
                 USER_EMAIL = data.EMAIL,
-                USER_PASSWORD = data.PASSWORD
+                USER_PASSWORD = data.PASSWORD,
+                BUSINESS_ID = Guid.NewGuid(),
+                USER_CREATED = DateTime.Now,
+                USER_UPDATED = DateTime.Now,
+                USER_DELETED = false,
+                USER_LOCKED = false,
+                USER_LASTLOGIN = null,
+                USER_TELEPHONE = "0123456789",
+                USER_PASSWORDEXPIRED = false
             });
-            db.SaveChanges();
+            _bookSmartContext.SaveChanges();
         }
 
         public string LoginUser(string email, string password)
         {
             //guard and email validation
-            BookSmartContext db = new BookSmartContext();
-            BookSmartBackEndDatabase.User? user = db.USER.FirstOrDefault(a => a.USER_EMAIL == email && a.USER_PASSWORD == password);
+            BookSmartBackEndDatabase.Models.User? user = _bookSmartContext.USERS.FirstOrDefault(a => a.USER_EMAIL == email && a.USER_PASSWORD == password);
 
             // return null if user not found
             if (user == null)

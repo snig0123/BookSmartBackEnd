@@ -2,17 +2,18 @@
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+using BookSmartBackEndDatabase.Models;
 
 namespace BookSmartBackEndDatabase;
 public class BookSmartContext : DbContext
 {
-    public BookSmartContext()
+    public BookSmartContext(DbContextOptions<BookSmartContext> options) : base(options)
     {
     }
-    protected override void OnConfiguring(DbContextOptionsBuilder options)
-        => options.UseSqlServer("");
 
-    public DbSet<User> USER { get; set; }
-    public DbSet<Worker> WORKER { get; set; }
-    public DbSet<Role> ROLE { get; set; }
+    public DbSet<User> USERS { get; set; }
+    public DbSet<Role> ROLES { get; set; }
+    public DbSet<RoleType> ROLETYPES { get; set; }
+    public DbSet<Business> BUSINESSES { get; set; }
+    public DbSet<Address> ADDRESSES { get; set; }
 }

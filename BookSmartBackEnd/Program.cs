@@ -1,10 +1,12 @@
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
-using BookSmartBackEnd.BusinessLogic.User;
-using BookSmartBackEnd.BusinessLogic.User.Interfaces;
+using BookSmartBackEnd.BusinessLogic;
+using BookSmartBackEnd.BusinessLogic.Interfaces;
+using BookSmartBackEndDatabase;
 using Microsoft.AspNetCore.DataProtection;
-using BookSmartBackEnd.BusinessLogic.Worker;
+using Microsoft.Data.SqlClient;
+using Microsoft.EntityFrameworkCore;
 
 var corsPolicy = "_corsPolicy";
 
@@ -22,15 +24,26 @@ builder.Services.AddCors(options =>
 });
 
 // Add services to the container.
-
 builder.Services.AddControllers();
+
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
+var conStrBuilder = new SqlConnectionStringBuilder(
+    builder.Configuration.GetConnectionString("default"));
+conStrBuilder.Password = builder.Configuration["DbPassword"];
+
+builder.Services.AddDbContext<BookSmartContext>(options =>
+    options.UseSqlServer(conStrBuilder.ConnectionString)
+);
+
+//Dependency Injection
 builder.Services.AddScoped<IUserBll, UserBll>();
 builder.Services.AddScoped<IWorkerBll, WorkerBll>();
+builder.Services.AddScoped<IAppointmentBll, AppointmentBll>();
 
+//Authentication
 byte[] key = Encoding.ASCII.GetBytes(",XXyKY(&qq-8&`f9y8(#");
 builder.Services.AddAuthentication(x =>
 {

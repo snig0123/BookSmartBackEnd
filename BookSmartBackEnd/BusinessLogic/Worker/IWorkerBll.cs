@@ -1,6 +1,6 @@
 ﻿using BookSmartBackEnd.Models;
 
-namespace BookSmartBackEnd.BusinessLogic.User.Interfaces
+namespace BookSmartBackEnd.BusinessLogic.Interfaces
 {
     public interface IWorkerBll
     {
