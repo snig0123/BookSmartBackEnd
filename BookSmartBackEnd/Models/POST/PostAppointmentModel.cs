@@ -1,4 +1,4 @@
-namespace BookSmartBackEnd.Models;
+namespace BookSmartBackEnd.Models.POST;
 
 public class PostAppointmentModel
 {

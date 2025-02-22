@@ -1,28 +1,21 @@
 using BookSmartBackEnd.BusinessLogic;
 using BookSmartBackEnd.BusinessLogic.Interfaces;
 using BookSmartBackEnd.Models;
+using BookSmartBackEnd.Models.POST;
 using Microsoft.AspNetCore.Http.Extensions;
 using Microsoft.AspNetCore.Mvc;
 
 namespace BookSmartBackEnd.Controllers;
 
-public class AppointmentController : Controller
+[ApiController]
+[Route("[controller]/[action]")]
+public class AppointmentController(IAppointmentBll appointmentBll) : ControllerBase
 {
-    private readonly IAppointmentBll _appointmentBll;
-    public AppointmentController(IAppointmentBll appointmentBll)
-    {
-        _appointmentBll = appointmentBll;
-    }
-    public IActionResult Index()
-    {
-        return View();
-    }
-
     [HttpPost("/Appointment/Create")]
     public ActionResult Create(PostAppointmentModel model)
     {
-
-        return null;
+        appointmentBll.CreateAppointment(model);
+        return Created();
         //return new CreatedResult(Request.GetEncodedUrl() + "/" + createdAppointment.ID);
     }
 }

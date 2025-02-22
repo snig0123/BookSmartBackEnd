@@ -1,5 +1,6 @@
 using BookSmartBackEnd.BusinessLogic.Interfaces;
 using BookSmartBackEnd.Models;
+using BookSmartBackEnd.Models.POST;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -7,7 +8,6 @@ namespace BookSmartBackEnd.Controllers
 {
     [ApiController]
     [Route("[controller]/[action]")]
-    
     public class UserController : ControllerBase
     {
         private readonly IUserBll _userBll;

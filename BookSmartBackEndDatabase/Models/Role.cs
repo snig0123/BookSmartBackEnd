@@ -9,8 +9,12 @@ namespace BookSmartBackEndDatabase.Models
         public required Guid ROLE_ID { get; set; }
         [ForeignKey("User")]
         public required Guid ROLE_USERID { get; set; }
+        public User ROLE_USER { get; set; } = null!;
         [ForeignKey("RoleType")]
         public required Guid ROLE_ROLETYPEID { get; set; }
-        public virtual RoleType ROLE_ROLETYPE { get; set; }
+
+        public RoleType ROLE_ROLETYPE { get; set; } = null!;
+        
+        
     }
 }

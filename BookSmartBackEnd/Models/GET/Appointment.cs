@@ -1,4 +1,4 @@
-namespace BookSmartBackEnd.Models;
+namespace BookSmartBackEnd.Models.GET;
 
 public class Appointment
 {

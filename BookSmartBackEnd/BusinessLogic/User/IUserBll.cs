@@ -1,4 +1,5 @@
 ﻿using BookSmartBackEnd.Models;
+using BookSmartBackEnd.Models.POST;
 
 namespace BookSmartBackEnd.BusinessLogic.Interfaces
 {

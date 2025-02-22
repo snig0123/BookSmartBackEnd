@@ -1,4 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace BookSmartBackEndDatabase.Models
 {
@@ -18,6 +19,9 @@ namespace BookSmartBackEndDatabase.Models
         public required DateTime USER_CREATED { get; set; }
         public required DateTime USER_UPDATED { get; set; }
         public required bool USER_DELETED { get; set; }
+        //Add a foreign key here once data is populated
+        //[ForeignKey("BUSINESS")]
         public required Guid BUSINESS_ID { get; set; }
+        public ICollection<Role> USER_ROLES { get; } = new List<Role>();
     }
 }

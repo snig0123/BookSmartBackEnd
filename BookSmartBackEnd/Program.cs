@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
+using BookSmartBackEnd.Authentication;
 using BookSmartBackEnd.BusinessLogic;
 using BookSmartBackEnd.BusinessLogic.Interfaces;
 using BookSmartBackEndDatabase;
@@ -40,28 +41,34 @@ builder.Services.AddDbContext<BookSmartContext>(options =>
 
 //Dependency Injection
 builder.Services.AddScoped<IUserBll, UserBll>();
-builder.Services.AddScoped<IWorkerBll, WorkerBll>();
+builder.Services.AddScoped<IStaffBll, StaffBll>();
 builder.Services.AddScoped<IAppointmentBll, AppointmentBll>();
 
+//Singletons
+builder.Services.AddSingleton<JwtHelper>();
+
 //Authentication
-byte[] key = Encoding.ASCII.GetBytes(",XXyKY(&qq-8&`f9y8(#");
-builder.Services.AddAuthentication(x =>
-{
-    x.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
-    x.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
-})
+byte[] key = Encoding.ASCII.GetBytes(builder.Configuration["jwtCert"] ?? string.Empty);
+builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
 .AddJwtBearer(x =>
 {
-    x.RequireHttpsMetadata = true;
-    x.SaveToken = true;
     x.TokenValidationParameters = new TokenValidationParameters
     {
         ValidateIssuerSigningKey = true,
         IssuerSigningKey = new SymmetricSecurityKey(key),
-        ValidateIssuer = false,
+        ValidateIssuer = true,
+        ValidIssuer = "TestIssuer",
         ValidateAudience = false
     };
 });
+
+// Set claims that can be used
+builder.Services.AddAuthorization(options =>
+{
+    options.AddPolicy("Staff", policy => policy.RequireClaim("Staff"));
+});
+
+
 
 WebApplication app = builder.Build();
 
