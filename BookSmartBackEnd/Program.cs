@@ -31,12 +31,14 @@ builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
+//Setup Database
 var conStrBuilder = new SqlConnectionStringBuilder(
     builder.Configuration.GetConnectionString("default"));
 conStrBuilder.Password = builder.Configuration["DbPassword"];
 
 builder.Services.AddDbContext<BookSmartContext>(options =>
     options.UseSqlServer(conStrBuilder.ConnectionString)
+        .UseQueryTrackingBehavior(QueryTrackingBehavior.NoTracking)
 );
 
 //Dependency Injection
@@ -71,6 +73,19 @@ builder.Services.AddAuthorization(options =>
 
 
 WebApplication app = builder.Build();
+
+//Create the database on first run and migrate if needed
+//This code can be added later
+//
+//Use this in a migration when renaming a field or it will drop and recreate
+//migrationBuilder.RenameColumn(
+// name: "ColumnA",
+// table: "MyTable",
+// newName: "ColumnB");
+//
+/*using var scope = app.Services.CreateScope();
+using var context = scope.ServiceProvider.GetRequiredService<BookSmartContext>();
+context.Database.Migrate();*/
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())

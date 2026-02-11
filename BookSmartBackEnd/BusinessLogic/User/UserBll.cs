@@ -37,13 +37,16 @@ namespace BookSmartBackEnd.BusinessLogic
                 USER_LOCKED = false,
                 USER_LASTLOGIN = null,
                 USER_TELEPHONE = "0123456789",
-                USER_PASSWORDEXPIRED = false
+                USER_PASSWORDEXPIRED = false,
+                USER_ROLES = { new Role
+                    {
+                        ROLE_ID = Guid.NewGuid(),
+                        ROLE_USERID = newUserId,
+                        ROLE_ROLETYPEID = RoleTypes.CLIENT
+                    }
+                }
             });
-            bookSmartContext.Add(new Role{
-                ROLE_ID = Guid.NewGuid(),
-                ROLE_USERID = newUserId,
-                ROLE_ROLETYPEID = RoleTypes.CLIENT
-                });
+
             bookSmartContext.SaveChanges();
         }
 
