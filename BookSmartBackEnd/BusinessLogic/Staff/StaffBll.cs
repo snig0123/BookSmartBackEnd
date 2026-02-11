@@ -1,20 +1,14 @@
 ﻿using BookSmartBackEnd.BusinessLogic.Interfaces;
-using BookSmartBackEnd.Models;
-using BookSmartBackEndDatabase;
-using BookSmartBackEndDatabase.Models;
-using Microsoft.IdentityModel.Tokens;
-using System.IdentityModel.Tokens.Jwt;
-using System.Security.Claims;
-using System.Text;
+using BookSmartBackEnd.Constants;
 using BookSmartBackEnd.Models.POST;
 
 namespace BookSmartBackEnd.BusinessLogic
 {
-    internal sealed class StaffBll(BookSmartContext bookSmartContext) : IStaffBll
+    internal sealed class StaffBll(IUserCreationService userCreationService) : IStaffBll
     {
         public void RegisterUser(PostRegisterModel data)
         {
-            
+            userCreationService.CreateUser(data, RoleTypes.STAFF);
         }
     }
 }

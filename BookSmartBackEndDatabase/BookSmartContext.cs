@@ -13,10 +13,29 @@ public class BookSmartContext : DbContext
     public DbSet<RoleType> ROLETYPES { get; set; }
     public DbSet<Business> BUSINESSES { get; set; }
     public DbSet<Address> ADDRESSES { get; set; }
+    public DbSet<Service> SERVICES { get; set; }
+    public DbSet<Schedule> SCHEDULES { get; set; }
+    public DbSet<Appointment> APPOINTMENTS { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         base.OnModelCreating(modelBuilder);
+
+        modelBuilder.Entity<Service>()
+            .Property(s => s.SERVICE_PRICE)
+            .HasPrecision(10, 2);
+
+        modelBuilder.Entity<Appointment>()
+            .HasOne(a => a.APPOINTMENT_CLIENTUSER)
+            .WithMany()
+            .HasForeignKey(a => a.APPOINTMENT_CLIENTUSERID)
+            .OnDelete(DeleteBehavior.Restrict);
+
+        modelBuilder.Entity<Appointment>()
+            .HasOne(a => a.APPOINTMENT_STAFFUSER)
+            .WithMany()
+            .HasForeignKey(a => a.APPOINTMENT_STAFFUSERID)
+            .OnDelete(DeleteBehavior.Restrict);
 
         modelBuilder.Entity<RoleType>().HasData(
             new RoleType

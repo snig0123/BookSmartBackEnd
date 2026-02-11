@@ -42,6 +42,7 @@ builder.Services.AddDbContext<BookSmartContext>(options =>
 );
 
 //Dependency Injection
+builder.Services.AddScoped<IUserCreationService, UserCreationService>();
 builder.Services.AddScoped<IUserBll, UserBll>();
 builder.Services.AddScoped<IStaffBll, StaffBll>();
 builder.Services.AddScoped<IAppointmentBll, AppointmentBll>();
@@ -68,6 +69,7 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
 builder.Services.AddAuthorization(options =>
 {
     options.AddPolicy("Staff", policy => policy.RequireClaim("Staff"));
+    options.AddPolicy("Admin", policy => policy.RequireClaim("Admin"));
 });
 
 

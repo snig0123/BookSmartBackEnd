@@ -11,10 +11,11 @@ namespace BookSmartBackEnd.Controllers
     [Route("[controller]/[action]")]
     public class StaffController(IStaffBll staffBll, ILogger<StaffController> logger) : ControllerBase
     {
+        [Authorize(Policy = "Admin")]
         [HttpPost(Name = "Create")]
         public ActionResult Create(PostRegisterModel data)
         {
-            //_userBLL.RegisterUser(data);
+            staffBll.RegisterUser(data);
             return Ok();
         }
     }

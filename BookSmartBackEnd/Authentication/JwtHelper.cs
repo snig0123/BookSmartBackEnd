@@ -15,16 +15,14 @@ internal sealed class JwtHelper(IConfiguration configuration)
 
         SecurityTokenDescriptor tokenDescriptor = new SecurityTokenDescriptor
         {
-            Issuer = "TestIssuer"/*This will be BookSmart or MinuteMaster*/,
+            Issuer = "BookSmart",
             Audience = user.BUSINESS_ID.ToString(),
             Expires = DateTime.Now.AddMinutes(60),
             SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha512),
             Subject = new ClaimsIdentity(
-                new Claim[]
-                {
-                    new ("Title", user.USER_TITLE),
-                    new ("Forename", user.USER_FORENAME)
-                }
+                [
+                    new (JwtRegisteredClaimNames.Sub, user.USER_ID.ToString())
+                ]
             ),
             Claims = user.USER_ROLES.ToDictionary(r => r.ROLE_ROLETYPE.ROLETYPE_NAME, r => (object)"Y")
         };
