@@ -27,9 +27,30 @@ namespace BookSmartBackEnd.Controllers
         }
 
         [HttpGet(Name = "Login")]
-        public ActionResult Login(string email, string password)
+        public ActionResult<Models.GET.LoginResponse> Login(string email, string password)
         {
-            return Ok(_userBll.LoginUser(email, password));
+            string token = _userBll.LoginUser(email, password);
+
+            if (string.IsNullOrEmpty(token))
+            {
+                return Unauthorized();
+            }
+
+            return Ok(new Models.GET.LoginResponse { Token = token });
+        }
+
+        [HttpGet(Name = "GetUserProfile")]
+        [Authorize]
+        public ActionResult<Models.GET.UserProfile> GetUserProfile(Guid userId)
+        {
+            var profile = _userBll.GetUserProfile(userId);
+
+            if (profile == null)
+            {
+                return NotFound();
+            }
+
+            return Ok(profile);
         }
 
         [HttpGet(Name = "GetSomething")]

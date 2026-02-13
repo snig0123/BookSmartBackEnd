@@ -1,4 +1,4 @@
-﻿using BookSmartBackEnd.Models;
+﻿using BookSmartBackEnd.Models.GET;
 using BookSmartBackEnd.Models.POST;
 
 namespace BookSmartBackEnd.BusinessLogic.Interfaces
@@ -7,5 +7,6 @@ namespace BookSmartBackEnd.BusinessLogic.Interfaces
     {
         void RegisterUser(PostRegisterModel data);
         string LoginUser(string email, string password);
+        UserProfile? GetUserProfile(Guid userId);
     }
 }

@@ -1,6 +1,7 @@
 using BookSmartBackEnd.Authentication;
 using BookSmartBackEnd.BusinessLogic.Interfaces;
 using BookSmartBackEnd.Constants;
+using BookSmartBackEnd.Models.GET;
 using BookSmartBackEnd.Models.POST;
 using BookSmartBackEndDatabase;
 using BookSmartBackEndDatabase.Models;
@@ -13,6 +14,26 @@ namespace BookSmartBackEnd.BusinessLogic
         public void RegisterUser(PostRegisterModel data)
         {
             userCreationService.CreateUser(data, RoleTypes.CLIENT);
+        }
+
+        public UserProfile? GetUserProfile(Guid userId)
+        {
+            User? user = bookSmartContext.USERS
+                .Include(u => u.USER_ROLES)
+                .ThenInclude(r => r.ROLE_ROLETYPE)
+                .FirstOrDefault(u => u.USER_ID == userId);
+
+            if (user == null)
+            {
+                return null;
+            }
+
+            return new UserProfile
+            {
+                Forename = user.USER_FORENAME,
+                Surname = user.USER_SURNAME,
+                Roles = user.USER_ROLES.Select(r => r.ROLE_ROLETYPE.ROLETYPE_NAME).ToList()
+            };
         }
 
         public string LoginUser(string email, string password)

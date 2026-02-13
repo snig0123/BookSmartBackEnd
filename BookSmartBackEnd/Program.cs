@@ -45,6 +45,7 @@ builder.Services.AddDbContext<BookSmartContext>(options =>
 builder.Services.AddScoped<IUserCreationService, UserCreationService>();
 builder.Services.AddScoped<IUserBll, UserBll>();
 builder.Services.AddScoped<IStaffBll, StaffBll>();
+builder.Services.AddScoped<IServiceBll, ServiceBll>();
 builder.Services.AddScoped<IAppointmentBll, AppointmentBll>();
 
 //Singletons
@@ -60,7 +61,7 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
         ValidateIssuerSigningKey = true,
         IssuerSigningKey = new SymmetricSecurityKey(key),
         ValidateIssuer = true,
-        ValidIssuer = "TestIssuer",
+        ValidIssuer = "BookSmart",
         ValidateAudience = false
     };
 });

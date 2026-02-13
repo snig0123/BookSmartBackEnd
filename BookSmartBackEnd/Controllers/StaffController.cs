@@ -1,5 +1,4 @@
 using BookSmartBackEnd.BusinessLogic.Interfaces;
-using BookSmartBackEnd.Models;
 using BookSmartBackEnd.Models.POST;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -18,5 +17,6 @@ namespace BookSmartBackEnd.Controllers
             staffBll.RegisterUser(data);
             return Ok();
         }
+
     }
 }
