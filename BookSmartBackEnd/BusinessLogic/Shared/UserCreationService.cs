@@ -22,7 +22,7 @@ namespace BookSmartBackEnd.BusinessLogic
                 USER_SURNAME = data.SURNAME,
                 USER_EMAIL = data.EMAIL,
                 USER_PASSWORD = data.PASSWORD,
-                BUSINESS_ID = Guid.NewGuid(), //This will come from the client
+                BUSINESS_ID = default(Guid), //TODO Get this from the client
                 USER_CREATED = DateTime.Now,
                 USER_UPDATED = DateTime.Now,
                 USER_DELETED = false,

@@ -46,6 +46,7 @@ builder.Services.AddScoped<IUserCreationService, UserCreationService>();
 builder.Services.AddScoped<IUserBll, UserBll>();
 builder.Services.AddScoped<IStaffBll, StaffBll>();
 builder.Services.AddScoped<IServiceBll, ServiceBll>();
+builder.Services.AddScoped<IScheduleBll, ScheduleBll>();
 builder.Services.AddScoped<IAppointmentBll, AppointmentBll>();
 
 //Singletons
