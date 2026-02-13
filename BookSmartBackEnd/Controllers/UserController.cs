@@ -1,5 +1,5 @@
+using System.Security.Claims;
 using BookSmartBackEnd.BusinessLogic.Interfaces;
-using BookSmartBackEnd.Models;
 using BookSmartBackEnd.Models.POST;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -27,22 +27,44 @@ namespace BookSmartBackEnd.Controllers
         }
 
         [HttpGet(Name = "Login")]
-        public ActionResult<Models.GET.LoginResponse> Login(string email, string password)
+        public ActionResult<Models.GET.UserProfile> Login(string email, string password)
         {
-            string token = _userBll.LoginUser(email, password);
+            var result = _userBll.LoginUser(email, password);
 
-            if (string.IsNullOrEmpty(token))
+            if (result == null)
             {
                 return Unauthorized();
             }
 
-            return Ok(new Models.GET.LoginResponse { Token = token });
+            Response.Cookies.Append("token", result.Token, new CookieOptions
+            {
+                HttpOnly = true,
+                Secure = true,
+                SameSite = SameSiteMode.None,
+                Expires = DateTimeOffset.Now.AddMinutes(60)
+            });
+
+            return Ok(result.Profile);
+        }
+
+        [HttpPost(Name = "Logout")]
+        public ActionResult Logout()
+        {
+            Response.Cookies.Delete("token", new CookieOptions
+            {
+                HttpOnly = true,
+                Secure = true,
+                SameSite = SameSiteMode.None
+            });
+
+            return Ok();
         }
 
         [HttpGet(Name = "GetUserProfile")]
         [Authorize]
-        public ActionResult<Models.GET.UserProfile> GetUserProfile(Guid userId)
+        public ActionResult<Models.GET.UserProfile> GetUserProfile()
         {
+            var userId = Guid.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
             var profile = _userBll.GetUserProfile(userId);
 
             if (profile == null)
@@ -53,17 +75,5 @@ namespace BookSmartBackEnd.Controllers
             return Ok(profile);
         }
 
-        [HttpGet(Name = "GetSomething")]
-        public ActionResult<string> GetSomething()
-        {
-            return "value123";
-        }
-
-        [HttpGet(Name = "GetSomethingAuth")]
-        [Authorize]
-        public ActionResult<string> GetSomethingAuth()
-        {
-            return "valueAuth123";
-        }
     }
 }

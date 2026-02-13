@@ -36,24 +36,32 @@ namespace BookSmartBackEnd.BusinessLogic
             };
         }
 
-        public string LoginUser(string email, string password)
+        public LoginResult? LoginUser(string email, string password)
         {
             //guard and email validation
-            
+
             //Get the business id from the jwt and pass that in the where clause
-            
+
             BookSmartBackEndDatabase.Models.User? user = bookSmartContext.USERS
                 .Include(userRole => userRole.USER_ROLES)
                 .ThenInclude(role => role.ROLE_ROLETYPE)
                 .FirstOrDefault(a => a.USER_EMAIL == email && a.USER_PASSWORD == password);
-            
-            // return null if user not found
+
             if (user == null)
             {
-                return string.Empty;
+                return null;
             }
 
-            return jwtHelper.CreateToken(user);
+            return new LoginResult
+            {
+                Token = jwtHelper.CreateToken(user),
+                Profile = new UserProfile
+                {
+                    Forename = user.USER_FORENAME,
+                    Surname = user.USER_SURNAME,
+                    Roles = user.USER_ROLES.Select(r => r.ROLE_ROLETYPE.ROLETYPE_NAME).ToList()
+                }
+            };
         }
     }
 }

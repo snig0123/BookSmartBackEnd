@@ -18,9 +18,10 @@ builder.Services.AddCors(options =>
     options.AddPolicy(corsPolicy,
                       policy =>
                       {
-                          policy.AllowAnyOrigin();
-                          policy.AllowAnyHeader();
-                          policy.AllowAnyMethod();
+                          policy.WithOrigins(builder.Configuration.GetSection("AllowedOrigins").Get<string[]>() ?? [])
+                              .AllowAnyHeader()
+                              .AllowAnyMethod()
+                              .AllowCredentials();
                       });
 });
 
@@ -64,6 +65,14 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
         ValidateIssuer = true,
         ValidIssuer = "BookSmart",
         ValidateAudience = false
+    };
+    x.Events = new JwtBearerEvents
+    {
+        OnMessageReceived = context =>
+        {
+            context.Token = context.Request.Cookies["token"];
+            return Task.CompletedTask;
+        }
     };
 });
 

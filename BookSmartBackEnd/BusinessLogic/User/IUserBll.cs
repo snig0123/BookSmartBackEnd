@@ -6,7 +6,7 @@ namespace BookSmartBackEnd.BusinessLogic.Interfaces
     public interface IUserBll
     {
         void RegisterUser(PostRegisterModel data);
-        string LoginUser(string email, string password);
+        LoginResult? LoginUser(string email, string password);
         UserProfile? GetUserProfile(Guid userId);
     }
 }
