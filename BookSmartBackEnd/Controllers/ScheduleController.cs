@@ -18,6 +18,14 @@ namespace BookSmartBackEnd.Controllers
             return Ok();
         }
 
+        [Authorize(Policy = "Staff")]
+        [HttpPost(Name = "CreateBulkSchedules")]
+        public ActionResult CreateBulkSchedules(List<PostScheduleModel> data)
+        {
+            scheduleBll.CreateBulkSchedules(data);
+            return Ok();
+        }
+
         [AllowAnonymous]
         [HttpGet(Name = "GetSchedule")]
         public ActionResult<ScheduleResponse> GetSchedule(Guid scheduleId)

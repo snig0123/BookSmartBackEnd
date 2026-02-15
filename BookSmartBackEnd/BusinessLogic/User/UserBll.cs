@@ -30,6 +30,7 @@ namespace BookSmartBackEnd.BusinessLogic
 
             return new UserProfile
             {
+                UserId = user.USER_ID,
                 Forename = user.USER_FORENAME,
                 Surname = user.USER_SURNAME,
                 Roles = user.USER_ROLES.Select(r => r.ROLE_ROLETYPE.ROLETYPE_NAME).ToList()
@@ -57,6 +58,7 @@ namespace BookSmartBackEnd.BusinessLogic
                 Token = jwtHelper.CreateToken(user),
                 Profile = new UserProfile
                 {
+                    UserId = user.USER_ID,
                     Forename = user.USER_FORENAME,
                     Surname = user.USER_SURNAME,
                     Roles = user.USER_ROLES.Select(r => r.ROLE_ROLETYPE.ROLETYPE_NAME).ToList()

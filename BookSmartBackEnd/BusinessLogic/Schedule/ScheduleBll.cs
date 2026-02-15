@@ -14,7 +14,7 @@ namespace BookSmartBackEnd.BusinessLogic
         {
             User user = bookSmartContext.USERS
                 .Include(u => u.USER_ROLES)
-                .FirstOrDefault(u => u.USER_ID == data.UserId)
+                .FirstOrDefault(u => u.USER_ID == data.StaffUserId)
                 ?? throw new ArgumentException("User not found.");
 
             bool isStaff = user.USER_ROLES.Any(r => r.ROLE_ROLETYPEID == RoleTypes.STAFF);
@@ -26,7 +26,7 @@ namespace BookSmartBackEnd.BusinessLogic
             Schedule schedule = new Schedule
             {
                 SCHEDULE_ID = Guid.NewGuid(),
-                SCHEDULE_USERID = data.UserId,
+                SCHEDULE_USERID = data.StaffUserId,
                 SCHEDULE_DAYOFWEEK = data.DayOfWeek,
                 SCHEDULE_STARTTIME = data.StartTime,
                 SCHEDULE_ENDTIME = data.EndTime,
@@ -37,6 +37,53 @@ namespace BookSmartBackEnd.BusinessLogic
             };
 
             bookSmartContext.SCHEDULES.Add(schedule);
+            bookSmartContext.SaveChanges();
+        }
+
+        public void CreateBulkSchedules(List<PostScheduleModel> data)
+        {
+            if (data.Count == 0)
+            {
+                throw new ArgumentException("No schedules provided.");
+            }
+
+            Guid userId = data[0].StaffUserId;
+            if (data.Any(d => d.StaffUserId != userId))
+            {
+                throw new ArgumentException("All schedules must belong to the same user.");
+            }
+
+            User user = bookSmartContext.USERS
+                .Include(u => u.USER_ROLES)
+                .FirstOrDefault(u => u.USER_ID == userId)
+                ?? throw new ArgumentException("User not found.");
+
+            bool isStaff = user.USER_ROLES.Any(r => r.ROLE_ROLETYPEID == RoleTypes.STAFF);
+            if (!isStaff)
+            {
+                throw new ArgumentException("User does not have the Staff role.");
+            }
+
+            DateTime now = DateTime.UtcNow;
+
+            foreach (PostScheduleModel entry in data)
+            {
+                Schedule schedule = new Schedule
+                {
+                    SCHEDULE_ID = Guid.NewGuid(),
+                    SCHEDULE_USERID = userId,
+                    SCHEDULE_DAYOFWEEK = entry.DayOfWeek,
+                    SCHEDULE_STARTTIME = entry.StartTime,
+                    SCHEDULE_ENDTIME = entry.EndTime,
+                    SCHEDULE_ACTIVE = true,
+                    SCHEDULE_CREATED = now,
+                    SCHEDULE_UPDATED = now,
+                    SCHEDULE_DELETED = false
+                };
+
+                bookSmartContext.SCHEDULES.Add(schedule);
+            }
+
             bookSmartContext.SaveChanges();
         }
 

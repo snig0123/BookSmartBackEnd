@@ -49,6 +49,7 @@ builder.Services.AddScoped<IStaffBll, StaffBll>();
 builder.Services.AddScoped<IServiceBll, ServiceBll>();
 builder.Services.AddScoped<IScheduleBll, ScheduleBll>();
 builder.Services.AddScoped<IAppointmentBll, AppointmentBll>();
+builder.Services.AddScoped<IScheduleOverrideBll, ScheduleOverrideBll>();
 
 //Singletons
 builder.Services.AddSingleton<JwtHelper>();

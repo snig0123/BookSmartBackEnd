@@ -4,11 +4,7 @@ Base URLs: `https://localhost:7200` | `http://localhost:5083`
 
 ## Authentication
 
-JWT Bearer tokens using HMAC SHA512. Include the token in the `Authorization` header:
-
-```
-Authorization: Bearer <token>
-```
+JWT Bearer tokens using HMAC SHA512. The token is stored in an httponly cookie named `token` and sent automatically with requests.
 
 ### Roles
 
@@ -60,11 +56,14 @@ Authenticate and receive a JWT token.
 
 **Responses:**
 
-- `200 OK`
+- `200 OK` — Sets an httponly cookie named `token` and returns the user profile:
 
 ```json
 {
-  "token": "string"
+  "userId": "guid",
+  "forename": "string",
+  "surname": "string",
+  "roles": ["string"]
 }
 ```
 
@@ -72,17 +71,21 @@ Authenticate and receive a JWT token.
 
 ---
 
+#### `POST /User/Logout`
+
+Clear the authentication cookie.
+
+**Auth:** None
+
+**Responses:** `200 OK`
+
+---
+
 #### `GET /User/GetUserProfile`
 
-Get a user's profile information.
+Get the authenticated user's profile information. The user ID is read from the JWT token.
 
 **Auth:** Bearer token (any authenticated user)
-
-**Query parameters:**
-
-| Parameter | Type | Required |
-|-----------|------|----------|
-| `userId`  | guid | Yes      |
 
 **Responses:**
 
@@ -90,6 +93,7 @@ Get a user's profile information.
 
 ```json
 {
+  "userId": "guid",
   "forename": "string",
   "surname": "string",
   "roles": ["string"]
@@ -276,6 +280,29 @@ Create a new schedule slot for a staff member. Validates the user has the Staff 
 
 ---
 
+#### `POST /Schedule/CreateBulkSchedules`
+
+Create multiple schedule slots at once for a single staff member. All entries must belong to the same user. Validates the user has the Staff role.
+
+**Auth:** Bearer token (Staff policy)
+
+**Request body:**
+
+```json
+[
+  {
+    "userId": "guid",
+    "dayOfWeek": "integer (0 = Sunday, 6 = Saturday)",
+    "startTime": "TimeOnly (HH:mm:ss)",
+    "endTime": "TimeOnly (HH:mm:ss)"
+  }
+]
+```
+
+**Responses:** `200 OK`
+
+---
+
 #### `GET /Schedule/GetSchedule`
 
 Get a single schedule slot by ID. Only returns non-deleted schedules.
@@ -376,6 +403,139 @@ Soft delete a schedule slot. Sets the schedule as deleted and inactive.
 | Parameter    | Type | Required |
 |--------------|------|----------|
 | `scheduleId` | guid | Yes      |
+
+**Responses:** `200 OK`
+
+---
+
+### Schedule Override
+
+#### `POST /ScheduleOverride/CreateScheduleOverride`
+
+Create a date-specific override for a staff member's recurring schedule. Use this for sick days, holidays, or adjusted hours on a specific date.
+
+**Auth:** Bearer token (Staff policy)
+
+**Request body:**
+
+```json
+{
+  "userId": "guid",
+  "date": "DateOnly (yyyy-MM-dd)",
+  "isAvailable": "boolean",
+  "startTime": "TimeOnly (HH:mm:ss) | null",
+  "endTime": "TimeOnly (HH:mm:ss) | null"
+}
+```
+
+When `isAvailable` is `false`, the staff member is unavailable for the entire date (start/end times are ignored).
+When `isAvailable` is `true`, `startTime` and `endTime` define the custom hours for that date.
+
+**Responses:** `200 OK`
+
+---
+
+#### `GET /ScheduleOverride/GetScheduleOverride`
+
+Get a single schedule override by ID. Only returns non-deleted overrides.
+
+**Auth:** None
+
+**Query parameters:**
+
+| Parameter    | Type | Required |
+|--------------|------|----------|
+| `overrideId` | guid | Yes      |
+
+**Responses:**
+
+- `200 OK`
+
+```json
+{
+  "overrideId": "guid",
+  "userId": "guid",
+  "date": "yyyy-MM-dd",
+  "isAvailable": "boolean",
+  "startTime": "HH:mm:ss | null",
+  "endTime": "HH:mm:ss | null"
+}
+```
+
+- `404 Not Found` — Override does not exist or has been deleted
+
+---
+
+#### `GET /ScheduleOverride/GetScheduleOverridesByStaff`
+
+Get all active (non-deleted) schedule overrides for a staff member.
+
+**Auth:** None
+
+**Query parameters:**
+
+| Parameter     | Type | Required |
+|---------------|------|----------|
+| `staffUserId` | guid | Yes      |
+
+**Responses:**
+
+- `200 OK`
+
+```json
+[
+  {
+    "overrideId": "guid",
+    "userId": "guid",
+    "date": "yyyy-MM-dd",
+    "isAvailable": "boolean",
+    "startTime": "HH:mm:ss | null",
+    "endTime": "HH:mm:ss | null"
+  }
+]
+```
+
+---
+
+#### `PUT /ScheduleOverride/UpdateScheduleOverride`
+
+Update an existing schedule override.
+
+**Auth:** Bearer token (Staff policy)
+
+**Query parameters:**
+
+| Parameter    | Type | Required |
+|--------------|------|----------|
+| `overrideId` | guid | Yes      |
+
+**Request body:**
+
+```json
+{
+  "userId": "guid",
+  "date": "DateOnly (yyyy-MM-dd)",
+  "isAvailable": "boolean",
+  "startTime": "TimeOnly (HH:mm:ss) | null",
+  "endTime": "TimeOnly (HH:mm:ss) | null"
+}
+```
+
+**Responses:** `200 OK`
+
+---
+
+#### `DELETE /ScheduleOverride/DeleteScheduleOverride`
+
+Soft delete a schedule override.
+
+**Auth:** Bearer token (Staff policy)
+
+**Query parameters:**
+
+| Parameter    | Type | Required |
+|--------------|------|----------|
+| `overrideId` | guid | Yes      |
 
 **Responses:** `200 OK`
 

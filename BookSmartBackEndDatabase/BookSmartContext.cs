@@ -16,6 +16,7 @@ public class BookSmartContext : DbContext
     public DbSet<Service> SERVICES { get; set; }
     public DbSet<Schedule> SCHEDULES { get; set; }
     public DbSet<Appointment> APPOINTMENTS { get; set; }
+    public DbSet<ScheduleOverride> SCHEDULEOVERRIDES { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
