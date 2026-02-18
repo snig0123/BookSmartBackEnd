@@ -17,6 +17,8 @@ public class BookSmartContext : DbContext
     public DbSet<Schedule> SCHEDULES { get; set; }
     public DbSet<Appointment> APPOINTMENTS { get; set; }
     public DbSet<ScheduleOverride> SCHEDULEOVERRIDES { get; set; }
+    public DbSet<ServiceSchedule> SERVICESCHEDULES { get; set; }
+    public DbSet<ServiceScheduleOverride> SERVICESCHEDULEOVERRIDES { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -36,6 +38,30 @@ public class BookSmartContext : DbContext
             .HasOne(a => a.APPOINTMENT_STAFFUSER)
             .WithMany()
             .HasForeignKey(a => a.APPOINTMENT_STAFFUSERID)
+            .OnDelete(DeleteBehavior.Restrict);
+
+        modelBuilder.Entity<ServiceSchedule>()
+            .HasOne(ss => ss.SERVICESCHEDULE_SERVICE)
+            .WithMany()
+            .HasForeignKey(ss => ss.SERVICESCHEDULE_SERVICEID)
+            .OnDelete(DeleteBehavior.Restrict);
+
+        modelBuilder.Entity<ServiceSchedule>()
+            .HasOne(ss => ss.SERVICESCHEDULE_SCHEDULE)
+            .WithMany()
+            .HasForeignKey(ss => ss.SERVICESCHEDULE_SCHEDULEID)
+            .OnDelete(DeleteBehavior.Restrict);
+
+        modelBuilder.Entity<ServiceScheduleOverride>()
+            .HasOne(sso => sso.SERVICESCHEDULEOVERRIDE_SERVICE)
+            .WithMany()
+            .HasForeignKey(sso => sso.SERVICESCHEDULEOVERRIDE_SERVICEID)
+            .OnDelete(DeleteBehavior.Restrict);
+
+        modelBuilder.Entity<ServiceScheduleOverride>()
+            .HasOne(sso => sso.SERVICESCHEDULEOVERRIDE_SCHEDULEOVERRIDE)
+            .WithMany()
+            .HasForeignKey(sso => sso.SERVICESCHEDULEOVERRIDE_SCHEDULEOVERRIDEID)
             .OnDelete(DeleteBehavior.Restrict);
 
         modelBuilder.Entity<RoleType>().HasData(
