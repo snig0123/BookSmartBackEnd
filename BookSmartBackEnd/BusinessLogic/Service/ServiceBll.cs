@@ -30,6 +30,7 @@ namespace BookSmartBackEnd.BusinessLogic
                 SERVICE_DESCRIPTION = data.Description,
                 SERVICE_DURATION = data.Duration,
                 SERVICE_PRICE = data.Price,
+                SERVICE_CAPACITY = data.Capacity,
                 SERVICE_BUSINESSID = user.BUSINESS_ID,
                 SERVICE_ACTIVE = true,
                 SERVICE_CREATED = DateTime.UtcNow,
@@ -71,6 +72,7 @@ namespace BookSmartBackEnd.BusinessLogic
             service.SERVICE_DESCRIPTION = data.Description;
             service.SERVICE_DURATION = data.Duration;
             service.SERVICE_PRICE = data.Price;
+            service.SERVICE_CAPACITY = data.Capacity;
             service.SERVICE_UPDATED = DateTime.UtcNow;
 
             bookSmartContext.SaveChanges();
@@ -100,6 +102,7 @@ namespace BookSmartBackEnd.BusinessLogic
                 Description = service.SERVICE_DESCRIPTION,
                 Duration = service.SERVICE_DURATION,
                 Price = service.SERVICE_PRICE,
+                Capacity = service.SERVICE_CAPACITY,
                 Active = service.SERVICE_ACTIVE
             };
         }

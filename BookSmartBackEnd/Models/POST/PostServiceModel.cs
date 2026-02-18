@@ -7,4 +7,5 @@ public class PostServiceModel
     public string? Description { get; set; }
     public required int Duration { get; set; }
     public required decimal Price { get; set; }
+    public required int Capacity { get; set; }
 }

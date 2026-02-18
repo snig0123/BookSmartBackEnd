@@ -11,6 +11,7 @@ namespace BookSmartBackEndDatabase.Models
         public string? SERVICE_DESCRIPTION { get; set; }
         public required int SERVICE_DURATION { get; set; }
         public required decimal SERVICE_PRICE { get; set; }
+        public required int SERVICE_CAPACITY { get; set; }
         [ForeignKey("Business")]
         public required Guid SERVICE_BUSINESSID { get; set; }
         public Business SERVICE_BUSINESS { get; set; } = null!;
