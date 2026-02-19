@@ -42,21 +42,32 @@ namespace BookSmartBackEnd.BusinessLogic
             bookSmartContext.SaveChanges();
         }
 
-        public ServiceResponse? GetService(Guid serviceId)
+        public ServiceResponse? GetService(Guid serviceId, bool excludeUnavailable = false)
         {
             Service? service = bookSmartContext.SERVICES
                 .FirstOrDefault(s => s.SERVICE_ID == serviceId && !s.SERVICE_DELETED);
 
             if (service == null) return null;
 
-            return MapToResponse(service);
+            bool isAvailable = IsServiceAvailable(serviceId);
+
+            if (excludeUnavailable && !isAvailable) return null;
+
+            return MapToResponse(service, isAvailable);
         }
 
-        public List<ServiceResponse> GetServicesByBusiness(Guid businessId)
+        public List<ServiceResponse> GetServicesByBusiness(Guid businessId, bool excludeUnavailable = false)
         {
-            return bookSmartContext.SERVICES
+            List<Service> services = bookSmartContext.SERVICES
                 .Where(s => s.SERVICE_BUSINESSID == businessId && !s.SERVICE_DELETED)
-                .Select(s => MapToResponse(s))
+                .ToList();
+
+            List<Guid> serviceIds = services.Select(s => s.SERVICE_ID).ToList();
+            HashSet<Guid> availableIds = GetAvailableServiceIds(serviceIds);
+
+            return services
+                .Where(s => !excludeUnavailable || availableIds.Contains(s.SERVICE_ID))
+                .Select(s => MapToResponse(s, availableIds.Contains(s.SERVICE_ID)))
                 .ToList();
         }
 
@@ -93,7 +104,43 @@ namespace BookSmartBackEnd.BusinessLogic
             bookSmartContext.SaveChanges();
         }
 
-        private static ServiceResponse MapToResponse(Service service)
+        private bool IsServiceAvailable(Guid serviceId)
+        {
+            return bookSmartContext.SERVICESCHEDULES
+                .Any(ss => ss.SERVICESCHEDULE_SERVICEID == serviceId
+                        && !ss.SERVICESCHEDULE_DELETED
+                        && !ss.SERVICESCHEDULE_SCHEDULE.SCHEDULE_DELETED
+                        && ss.SERVICESCHEDULE_SCHEDULE.SCHEDULE_ACTIVE)
+                ||
+                bookSmartContext.SERVICESCHEDULEOVERRIDES
+                .Any(sso => sso.SERVICESCHEDULEOVERRIDE_SERVICEID == serviceId
+                         && !sso.SERVICESCHEDULEOVERRIDE_DELETED
+                         && !sso.SERVICESCHEDULEOVERRIDE_SCHEDULEOVERRIDE.SCHEDULEOVERRIDE_DELETED
+                         && sso.SERVICESCHEDULEOVERRIDE_SCHEDULEOVERRIDE.SCHEDULEOVERRIDE_ISAVAILABLE);
+        }
+
+        private HashSet<Guid> GetAvailableServiceIds(List<Guid> serviceIds)
+        {
+            HashSet<Guid> result = bookSmartContext.SERVICESCHEDULES
+                .Where(ss => serviceIds.Contains(ss.SERVICESCHEDULE_SERVICEID)
+                          && !ss.SERVICESCHEDULE_DELETED
+                          && !ss.SERVICESCHEDULE_SCHEDULE.SCHEDULE_DELETED
+                          && ss.SERVICESCHEDULE_SCHEDULE.SCHEDULE_ACTIVE)
+                .Select(ss => ss.SERVICESCHEDULE_SERVICEID)
+                .ToHashSet();
+
+            result.UnionWith(bookSmartContext.SERVICESCHEDULEOVERRIDES
+                .Where(sso => serviceIds.Contains(sso.SERVICESCHEDULEOVERRIDE_SERVICEID)
+                           && !sso.SERVICESCHEDULEOVERRIDE_DELETED
+                           && !sso.SERVICESCHEDULEOVERRIDE_SCHEDULEOVERRIDE.SCHEDULEOVERRIDE_DELETED
+                           && sso.SERVICESCHEDULEOVERRIDE_SCHEDULEOVERRIDE.SCHEDULEOVERRIDE_ISAVAILABLE)
+                .Select(sso => sso.SERVICESCHEDULEOVERRIDE_SERVICEID)
+                .ToHashSet());
+
+            return result;
+        }
+
+        private static ServiceResponse MapToResponse(Service service, bool isAvailable)
         {
             return new ServiceResponse
             {
@@ -103,7 +150,8 @@ namespace BookSmartBackEnd.BusinessLogic
                 Duration = service.SERVICE_DURATION,
                 Price = service.SERVICE_PRICE,
                 Capacity = service.SERVICE_CAPACITY,
-                Active = service.SERVICE_ACTIVE
+                Active = service.SERVICE_ACTIVE,
+                IsAvailable = isAvailable
             };
         }
     }

@@ -56,13 +56,21 @@ namespace BookSmartBackEnd.BusinessLogic
             bookSmartContext.SaveChanges();
         }
 
-        public List<ServiceResponse> GetServicesBySchedule(Guid scheduleId)
+        public List<ServiceResponse> GetServicesBySchedule(Guid scheduleId, bool excludeUnavailable = false)
         {
-            return bookSmartContext.SERVICESCHEDULES
+            List<Service> services = bookSmartContext.SERVICESCHEDULES
                 .Where(ss => ss.SERVICESCHEDULE_SCHEDULEID == scheduleId && !ss.SERVICESCHEDULE_DELETED)
                 .Include(ss => ss.SERVICESCHEDULE_SERVICE)
                 .Where(ss => !ss.SERVICESCHEDULE_SERVICE.SERVICE_DELETED)
-                .Select(ss => MapServiceToResponse(ss.SERVICESCHEDULE_SERVICE))
+                .Select(ss => ss.SERVICESCHEDULE_SERVICE)
+                .ToList();
+
+            List<Guid> serviceIds = services.Select(s => s.SERVICE_ID).ToList();
+            HashSet<Guid> availableIds = GetAvailableServiceIds(serviceIds);
+
+            return services
+                .Where(s => !excludeUnavailable || availableIds.Contains(s.SERVICE_ID))
+                .Select(s => MapServiceToResponse(s, availableIds.Contains(s.SERVICE_ID)))
                 .ToList();
         }
 
@@ -123,13 +131,21 @@ namespace BookSmartBackEnd.BusinessLogic
             bookSmartContext.SaveChanges();
         }
 
-        public List<ServiceResponse> GetServicesByScheduleOverride(Guid scheduleOverrideId)
+        public List<ServiceResponse> GetServicesByScheduleOverride(Guid scheduleOverrideId, bool excludeUnavailable = false)
         {
-            return bookSmartContext.SERVICESCHEDULEOVERRIDES
+            List<Service> services = bookSmartContext.SERVICESCHEDULEOVERRIDES
                 .Where(sso => sso.SERVICESCHEDULEOVERRIDE_SCHEDULEOVERRIDEID == scheduleOverrideId && !sso.SERVICESCHEDULEOVERRIDE_DELETED)
                 .Include(sso => sso.SERVICESCHEDULEOVERRIDE_SERVICE)
                 .Where(sso => !sso.SERVICESCHEDULEOVERRIDE_SERVICE.SERVICE_DELETED)
-                .Select(sso => MapServiceToResponse(sso.SERVICESCHEDULEOVERRIDE_SERVICE))
+                .Select(sso => sso.SERVICESCHEDULEOVERRIDE_SERVICE)
+                .ToList();
+
+            List<Guid> serviceIds = services.Select(s => s.SERVICE_ID).ToList();
+            HashSet<Guid> availableIds = GetAvailableServiceIds(serviceIds);
+
+            return services
+                .Where(s => !excludeUnavailable || availableIds.Contains(s.SERVICE_ID))
+                .Select(s => MapServiceToResponse(s, availableIds.Contains(s.SERVICE_ID)))
                 .ToList();
         }
 
@@ -143,7 +159,28 @@ namespace BookSmartBackEnd.BusinessLogic
                 .ToList();
         }
 
-        private static ServiceResponse MapServiceToResponse(Service service)
+        private HashSet<Guid> GetAvailableServiceIds(List<Guid> serviceIds)
+        {
+            HashSet<Guid> result = bookSmartContext.SERVICESCHEDULES
+                .Where(ss => serviceIds.Contains(ss.SERVICESCHEDULE_SERVICEID)
+                          && !ss.SERVICESCHEDULE_DELETED
+                          && !ss.SERVICESCHEDULE_SCHEDULE.SCHEDULE_DELETED
+                          && ss.SERVICESCHEDULE_SCHEDULE.SCHEDULE_ACTIVE)
+                .Select(ss => ss.SERVICESCHEDULE_SERVICEID)
+                .ToHashSet();
+
+            result.UnionWith(bookSmartContext.SERVICESCHEDULEOVERRIDES
+                .Where(sso => serviceIds.Contains(sso.SERVICESCHEDULEOVERRIDE_SERVICEID)
+                           && !sso.SERVICESCHEDULEOVERRIDE_DELETED
+                           && !sso.SERVICESCHEDULEOVERRIDE_SCHEDULEOVERRIDE.SCHEDULEOVERRIDE_DELETED
+                           && sso.SERVICESCHEDULEOVERRIDE_SCHEDULEOVERRIDE.SCHEDULEOVERRIDE_ISAVAILABLE)
+                .Select(sso => sso.SERVICESCHEDULEOVERRIDE_SERVICEID)
+                .ToHashSet());
+
+            return result;
+        }
+
+        private static ServiceResponse MapServiceToResponse(Service service, bool isAvailable)
         {
             return new ServiceResponse
             {
@@ -153,7 +190,8 @@ namespace BookSmartBackEnd.BusinessLogic
                 Duration = service.SERVICE_DURATION,
                 Price = service.SERVICE_PRICE,
                 Capacity = service.SERVICE_CAPACITY,
-                Active = service.SERVICE_ACTIVE
+                Active = service.SERVICE_ACTIVE,
+                IsAvailable = isAvailable
             };
         }
 

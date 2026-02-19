@@ -20,9 +20,9 @@ namespace BookSmartBackEnd.Controllers
 
         [AllowAnonymous]
         [HttpGet(Name = "GetService")]
-        public ActionResult<ServiceResponse> GetService(Guid serviceId)
+        public ActionResult<ServiceResponse> GetService(Guid serviceId, bool excludeUnavailable = false)
         {
-            ServiceResponse? service = serviceBll.GetService(serviceId);
+            ServiceResponse? service = serviceBll.GetService(serviceId, excludeUnavailable);
 
             if (service == null) return NotFound();
 
@@ -31,9 +31,9 @@ namespace BookSmartBackEnd.Controllers
 
         [AllowAnonymous]
         [HttpGet(Name = "GetServicesByBusiness")]
-        public ActionResult<List<ServiceResponse>> GetServicesByBusiness(Guid businessId)
+        public ActionResult<List<ServiceResponse>> GetServicesByBusiness(Guid businessId, bool excludeUnavailable = false)
         {
-            List<ServiceResponse> services = serviceBll.GetServicesByBusiness(businessId);
+            List<ServiceResponse> services = serviceBll.GetServicesByBusiness(businessId, excludeUnavailable);
             return Ok(services);
         }
 

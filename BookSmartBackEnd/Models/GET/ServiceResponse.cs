@@ -9,4 +9,5 @@ public class ServiceResponse
     public required decimal Price { get; set; }
     public required int Capacity { get; set; }
     public required bool Active { get; set; }
+    public required bool IsAvailable { get; set; }
 }

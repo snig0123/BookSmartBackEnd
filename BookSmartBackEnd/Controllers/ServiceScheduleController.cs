@@ -28,9 +28,9 @@ namespace BookSmartBackEnd.Controllers
 
         [AllowAnonymous]
         [HttpGet(Name = "GetServicesBySchedule")]
-        public ActionResult<List<ServiceResponse>> GetServicesBySchedule(Guid scheduleId)
+        public ActionResult<List<ServiceResponse>> GetServicesBySchedule(Guid scheduleId, bool excludeUnavailable = false)
         {
-            List<ServiceResponse> services = serviceScheduleBll.GetServicesBySchedule(scheduleId);
+            List<ServiceResponse> services = serviceScheduleBll.GetServicesBySchedule(scheduleId, excludeUnavailable);
             return Ok(services);
         }
 
@@ -60,9 +60,9 @@ namespace BookSmartBackEnd.Controllers
 
         [AllowAnonymous]
         [HttpGet(Name = "GetServicesByScheduleOverride")]
-        public ActionResult<List<ServiceResponse>> GetServicesByScheduleOverride(Guid scheduleOverrideId)
+        public ActionResult<List<ServiceResponse>> GetServicesByScheduleOverride(Guid scheduleOverrideId, bool excludeUnavailable = false)
         {
-            List<ServiceResponse> services = serviceScheduleBll.GetServicesByScheduleOverride(scheduleOverrideId);
+            List<ServiceResponse> services = serviceScheduleBll.GetServicesByScheduleOverride(scheduleOverrideId, excludeUnavailable);
             return Ok(services);
         }
 

@@ -160,9 +160,10 @@ Get a single service by ID. Only returns non-deleted services.
 
 **Query parameters:**
 
-| Parameter   | Type | Required |
-|-------------|------|----------|
-| `serviceId` | guid | Yes      |
+| Parameter            | Type    | Required |
+|----------------------|---------|----------|
+| `serviceId`          | guid    | Yes      |
+| `excludeUnavailable` | boolean | No (default: false) |
 
 **Responses:**
 
@@ -176,7 +177,8 @@ Get a single service by ID. Only returns non-deleted services.
   "duration": "integer",
   "price": "decimal",
   "capacity": "integer",
-  "active": "boolean"
+  "active": "boolean",
+  "isAvailable": "boolean"
 }
 ```
 
@@ -192,9 +194,10 @@ Get all active (non-deleted) services for a business.
 
 **Query parameters:**
 
-| Parameter    | Type | Required |
-|--------------|------|----------|
-| `businessId` | guid | Yes      |
+| Parameter            | Type    | Required |
+|----------------------|---------|----------|
+| `businessId`         | guid    | Yes      |
+| `excludeUnavailable` | boolean | No (default: false) |
 
 **Responses:**
 
@@ -209,7 +212,8 @@ Get all active (non-deleted) services for a business.
     "duration": "integer",
     "price": "decimal",
     "capacity": "integer",
-    "active": "boolean"
+    "active": "boolean",
+    "isAvailable": "boolean"
   }
 ]
 ```
@@ -295,7 +299,7 @@ Create multiple schedule slots at once for a single staff member. All entries mu
 ```json
 [
   {
-    "userId": "guid",
+    "staffUserId": "guid",
     "dayOfWeek": "integer (0 = Sunday, 6 = Saturday)",
     "startTime": "TimeOnly (HH:mm:ss)",
     "endTime": "TimeOnly (HH:mm:ss)"
@@ -326,7 +330,7 @@ Get a single schedule slot by ID. Only returns non-deleted schedules.
 ```json
 {
   "scheduleId": "guid",
-  "staffUserId": "guid",
+  "userId": "guid",
   "dayOfWeek": "integer",
   "startTime": "HH:mm:ss",
   "endTime": "HH:mm:ss",
@@ -358,7 +362,7 @@ Get all active (non-deleted) schedule slots for a staff member. Clients can use 
 [
   {
     "scheduleId": "guid",
-    "staffUserId": "guid",
+    "userId": "guid",
     "dayOfWeek": "integer",
     "startTime": "HH:mm:ss",
     "endTime": "HH:mm:ss",
@@ -593,9 +597,10 @@ Get all active services linked to a given schedule slot.
 
 **Query parameters:**
 
-| Parameter    | Type | Required |
-|--------------|------|----------|
-| `scheduleId` | guid | Yes      |
+| Parameter            | Type    | Required |
+|----------------------|---------|----------|
+| `scheduleId`         | guid    | Yes      |
+| `excludeUnavailable` | boolean | No (default: false) |
 
 **Responses:**
 
@@ -610,7 +615,8 @@ Get all active services linked to a given schedule slot.
     "duration": "integer",
     "price": "decimal",
     "capacity": "integer",
-    "active": "boolean"
+    "active": "boolean",
+    "isAvailable": "boolean"
   }
 ]
 ```
@@ -692,9 +698,10 @@ Get all active services linked to a given schedule override.
 
 **Query parameters:**
 
-| Parameter            | Type | Required |
-|----------------------|------|----------|
-| `scheduleOverrideId` | guid | Yes      |
+| Parameter            | Type    | Required |
+|----------------------|---------|----------|
+| `scheduleOverrideId` | guid    | Yes      |
+| `excludeUnavailable` | boolean | No (default: false) |
 
 **Responses:**
 
@@ -709,7 +716,8 @@ Get all active services linked to a given schedule override.
     "duration": "integer",
     "price": "decimal",
     "capacity": "integer",
-    "active": "boolean"
+    "active": "boolean",
+    "isAvailable": "boolean"
   }
 ]
 ```
