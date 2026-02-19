@@ -143,7 +143,8 @@ Create a new service for a staff member's business.
   "name": "string",
   "description": "string | null",
   "duration": "integer (minutes)",
-  "price": "decimal"
+  "price": "decimal",
+  "capacity": "integer"
 }
 ```
 
@@ -174,6 +175,7 @@ Get a single service by ID. Only returns non-deleted services.
   "description": "string | null",
   "duration": "integer",
   "price": "decimal",
+  "capacity": "integer",
   "active": "boolean"
 }
 ```
@@ -206,6 +208,7 @@ Get all active (non-deleted) services for a business.
     "description": "string | null",
     "duration": "integer",
     "price": "decimal",
+    "capacity": "integer",
     "active": "boolean"
   }
 ]
@@ -233,7 +236,8 @@ Update an existing service.
   "name": "string",
   "description": "string | null",
   "duration": "integer",
-  "price": "decimal"
+  "price": "decimal",
+  "capacity": "integer"
 }
 ```
 
@@ -445,7 +449,7 @@ Get a single schedule override by ID. Only returns non-deleted overrides.
 
 | Parameter    | Type | Required |
 |--------------|------|----------|
-| `overrideId` | guid | Yes      |
+| `scheduleOverrideId` | guid | Yes      |
 
 **Responses:**
 
@@ -453,7 +457,7 @@ Get a single schedule override by ID. Only returns non-deleted overrides.
 
 ```json
 {
-  "overrideId": "guid",
+  "scheduleOverrideId": "guid",
   "userId": "guid",
   "date": "yyyy-MM-dd",
   "isAvailable": "boolean",
@@ -485,7 +489,7 @@ Get all active (non-deleted) schedule overrides for a staff member.
 ```json
 [
   {
-    "overrideId": "guid",
+    "scheduleOverrideId": "guid",
     "userId": "guid",
     "date": "yyyy-MM-dd",
     "isAvailable": "boolean",
@@ -507,7 +511,7 @@ Update an existing schedule override.
 
 | Parameter    | Type | Required |
 |--------------|------|----------|
-| `overrideId` | guid | Yes      |
+| `scheduleOverrideId` | guid | Yes      |
 
 **Request body:**
 
@@ -535,9 +539,211 @@ Soft delete a schedule override.
 
 | Parameter    | Type | Required |
 |--------------|------|----------|
-| `overrideId` | guid | Yes      |
+| `scheduleOverrideId` | guid | Yes      |
 
 **Responses:** `200 OK`
+
+---
+
+### Service Schedule
+
+Manages the association between services and schedules (or schedule overrides), allowing specific services to be offered during particular schedule windows.
+
+#### `POST /ServiceSchedule/AddServiceToSchedule`
+
+Link a service to a recurring schedule slot.
+
+**Auth:** Bearer token (Staff policy)
+
+**Request body:**
+
+```json
+{
+  "serviceId": "guid",
+  "scheduleId": "guid"
+}
+```
+
+**Responses:** `200 OK`
+
+---
+
+#### `DELETE /ServiceSchedule/RemoveServiceFromSchedule`
+
+Unlink a service from a recurring schedule slot (soft delete).
+
+**Auth:** Bearer token (Staff policy)
+
+**Query parameters:**
+
+| Parameter    | Type | Required |
+|--------------|------|----------|
+| `serviceId`  | guid | Yes      |
+| `scheduleId` | guid | Yes      |
+
+**Responses:** `200 OK`
+
+---
+
+#### `GET /ServiceSchedule/GetServicesBySchedule`
+
+Get all active services linked to a given schedule slot.
+
+**Auth:** None
+
+**Query parameters:**
+
+| Parameter    | Type | Required |
+|--------------|------|----------|
+| `scheduleId` | guid | Yes      |
+
+**Responses:**
+
+- `200 OK`
+
+```json
+[
+  {
+    "serviceId": "guid",
+    "name": "string",
+    "description": "string | null",
+    "duration": "integer",
+    "price": "decimal",
+    "capacity": "integer",
+    "active": "boolean"
+  }
+]
+```
+
+---
+
+#### `GET /ServiceSchedule/GetSchedulesByService`
+
+Get all active schedule slots linked to a given service.
+
+**Auth:** None
+
+**Query parameters:**
+
+| Parameter   | Type | Required |
+|-------------|------|----------|
+| `serviceId` | guid | Yes      |
+
+**Responses:**
+
+- `200 OK`
+
+```json
+[
+  {
+    "scheduleId": "guid",
+    "userId": "guid",
+    "dayOfWeek": "integer (0 = Sunday, 6 = Saturday)",
+    "startTime": "HH:mm:ss",
+    "endTime": "HH:mm:ss",
+    "active": "boolean"
+  }
+]
+```
+
+---
+
+#### `POST /ServiceSchedule/AddServiceToScheduleOverride`
+
+Link a service to a schedule override.
+
+**Auth:** Bearer token (Staff policy)
+
+**Request body:**
+
+```json
+{
+  "serviceId": "guid",
+  "scheduleOverrideId": "guid"
+}
+```
+
+**Responses:** `200 OK`
+
+---
+
+#### `DELETE /ServiceSchedule/RemoveServiceFromScheduleOverride`
+
+Unlink a service from a schedule override (soft delete).
+
+**Auth:** Bearer token (Staff policy)
+
+**Query parameters:**
+
+| Parameter            | Type | Required |
+|----------------------|------|----------|
+| `serviceId`          | guid | Yes      |
+| `scheduleOverrideId` | guid | Yes      |
+
+**Responses:** `200 OK`
+
+---
+
+#### `GET /ServiceSchedule/GetServicesByScheduleOverride`
+
+Get all active services linked to a given schedule override.
+
+**Auth:** None
+
+**Query parameters:**
+
+| Parameter            | Type | Required |
+|----------------------|------|----------|
+| `scheduleOverrideId` | guid | Yes      |
+
+**Responses:**
+
+- `200 OK`
+
+```json
+[
+  {
+    "serviceId": "guid",
+    "name": "string",
+    "description": "string | null",
+    "duration": "integer",
+    "price": "decimal",
+    "capacity": "integer",
+    "active": "boolean"
+  }
+]
+```
+
+---
+
+#### `GET /ServiceSchedule/GetScheduleOverridesByService`
+
+Get all active schedule overrides linked to a given service.
+
+**Auth:** None
+
+**Query parameters:**
+
+| Parameter   | Type | Required |
+|-------------|------|----------|
+| `serviceId` | guid | Yes      |
+
+**Responses:**
+
+- `200 OK`
+
+```json
+[
+  {
+    "scheduleOverrideId": "guid",
+    "userId": "guid",
+    "date": "yyyy-MM-dd",
+    "isAvailable": "boolean",
+    "startTime": "HH:mm:ss | null",
+    "endTime": "HH:mm:ss | null"
+  }
+]
+```
 
 ---
 

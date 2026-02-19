@@ -20,9 +20,9 @@ namespace BookSmartBackEnd.Controllers
 
         [AllowAnonymous]
         [HttpGet(Name = "GetScheduleOverride")]
-        public ActionResult<ScheduleOverrideResponse> GetScheduleOverride(Guid overrideId)
+        public ActionResult<ScheduleOverrideResponse> GetScheduleOverride(Guid scheduleOverrideId)
         {
-            ScheduleOverrideResponse? scheduleOverride = scheduleOverrideBll.GetScheduleOverride(overrideId);
+            ScheduleOverrideResponse? scheduleOverride = scheduleOverrideBll.GetScheduleOverride(scheduleOverrideId);
 
             if (scheduleOverride == null) return NotFound();
 
@@ -39,17 +39,17 @@ namespace BookSmartBackEnd.Controllers
 
         [Authorize(Policy = "Staff")]
         [HttpPut(Name = "UpdateScheduleOverride")]
-        public ActionResult UpdateScheduleOverride(Guid overrideId, PostScheduleOverrideModel data)
+        public ActionResult UpdateScheduleOverride(Guid scheduleOverrideId, PostScheduleOverrideModel data)
         {
-            scheduleOverrideBll.UpdateScheduleOverride(overrideId, data);
+            scheduleOverrideBll.UpdateScheduleOverride(scheduleOverrideId, data);
             return Ok();
         }
 
         [Authorize(Policy = "Staff")]
         [HttpDelete(Name = "DeleteScheduleOverride")]
-        public ActionResult DeleteScheduleOverride(Guid overrideId)
+        public ActionResult DeleteScheduleOverride(Guid scheduleOverrideId)
         {
-            scheduleOverrideBll.DeleteScheduleOverride(overrideId);
+            scheduleOverrideBll.DeleteScheduleOverride(scheduleOverrideId);
             return Ok();
         }
     }

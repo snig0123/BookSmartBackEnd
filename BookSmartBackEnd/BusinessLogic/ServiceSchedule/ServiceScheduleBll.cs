@@ -174,7 +174,7 @@ namespace BookSmartBackEnd.BusinessLogic
         {
             return new ScheduleOverrideResponse
             {
-                OverrideId = scheduleOverride.SCHEDULEOVERRIDE_ID,
+                ScheduleOverrideId = scheduleOverride.SCHEDULEOVERRIDE_ID,
                 UserId = scheduleOverride.SCHEDULEOVERRIDE_USERID,
                 Date = scheduleOverride.SCHEDULEOVERRIDE_DATE,
                 IsAvailable = scheduleOverride.SCHEDULEOVERRIDE_ISAVAILABLE,

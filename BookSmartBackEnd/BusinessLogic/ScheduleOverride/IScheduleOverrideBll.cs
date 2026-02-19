@@ -6,9 +6,9 @@ namespace BookSmartBackEnd.BusinessLogic.Interfaces
     public interface IScheduleOverrideBll
     {
         void CreateScheduleOverride(PostScheduleOverrideModel data);
-        ScheduleOverrideResponse? GetScheduleOverride(Guid overrideId);
+        ScheduleOverrideResponse? GetScheduleOverride(Guid scheduleOverrideId);
         List<ScheduleOverrideResponse> GetScheduleOverridesByStaff(Guid staffUserId);
-        void UpdateScheduleOverride(Guid overrideId, PostScheduleOverrideModel data);
-        void DeleteScheduleOverride(Guid overrideId);
+        void UpdateScheduleOverride(Guid scheduleOverrideId, PostScheduleOverrideModel data);
+        void DeleteScheduleOverride(Guid scheduleOverrideId);
     }
 }
