@@ -16,6 +16,12 @@ namespace BookSmartBackEndDatabase.Models
         [ForeignKey("Service")]
         public required Guid APPOINTMENT_SERVICEID { get; set; }
         public Service APPOINTMENT_SERVICE { get; set; } = null!;
+        [ForeignKey("Schedule")]
+        public Guid? APPOINTMENT_SCHEDULEID { get; set; }
+        public Schedule? APPOINTMENT_SCHEDULE { get; set; }
+        [ForeignKey("ScheduleOverride")]
+        public Guid? APPOINTMENT_SCHEDULEOVERRIDEID { get; set; }
+        public ScheduleOverride? APPOINTMENT_SCHEDULEOVERRIDE { get; set; }
         public required DateTime APPOINTMENT_STARTDATETIME { get; set; }
         public required DateTime APPOINTMENT_ENDDATETIME { get; set; }
         public required string APPOINTMENT_STATUS { get; set; }

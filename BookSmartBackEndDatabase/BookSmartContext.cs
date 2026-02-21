@@ -40,6 +40,18 @@ public class BookSmartContext : DbContext
             .HasForeignKey(a => a.APPOINTMENT_STAFFUSERID)
             .OnDelete(DeleteBehavior.Restrict);
 
+        modelBuilder.Entity<Appointment>()
+            .HasOne(a => a.APPOINTMENT_SCHEDULE)
+            .WithMany()
+            .HasForeignKey(a => a.APPOINTMENT_SCHEDULEID)
+            .OnDelete(DeleteBehavior.Restrict);
+
+        modelBuilder.Entity<Appointment>()
+            .HasOne(a => a.APPOINTMENT_SCHEDULEOVERRIDE)
+            .WithMany()
+            .HasForeignKey(a => a.APPOINTMENT_SCHEDULEOVERRIDEID)
+            .OnDelete(DeleteBehavior.Restrict);
+
         modelBuilder.Entity<ServiceSchedule>()
             .HasOne(ss => ss.SERVICESCHEDULE_SERVICE)
             .WithMany()

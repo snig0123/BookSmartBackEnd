@@ -1,9 +1,9 @@
-using BookSmartBackEnd.BusinessLogic;
 using BookSmartBackEnd.BusinessLogic.Interfaces;
-using BookSmartBackEnd.Models;
+using BookSmartBackEnd.Models.GET;
 using BookSmartBackEnd.Models.POST;
-using Microsoft.AspNetCore.Http.Extensions;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using System.Security.Claims;
 
 namespace BookSmartBackEnd.Controllers;
 
@@ -11,11 +11,52 @@ namespace BookSmartBackEnd.Controllers;
 [Route("[controller]/[action]")]
 public class AppointmentController(IAppointmentBll appointmentBll) : ControllerBase
 {
-    [HttpPost("/Appointment/Create")]
-    public ActionResult Create(PostAppointmentModel model)
+    [HttpPost]
+    [Authorize]
+    public ActionResult Book(PostAppointmentModel model)
     {
-        appointmentBll.CreateAppointment(model);
+        Guid clientUserId = Guid.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
+        appointmentBll.CreateAppointment(clientUserId, model);
         return Created();
-        //return new CreatedResult(Request.GetEncodedUrl() + "/" + createdAppointment.ID);
+    }
+
+    [HttpPost]
+    [Authorize(Policy = "Staff")]
+    public ActionResult BookForClient(PostAppointmentForClientModel model)
+    {
+        appointmentBll.CreateAppointmentForClient(model);
+        return Created();
+    }
+
+    [HttpGet]
+    [Authorize]
+    public ActionResult<List<AppointmentResponse>> GetMyAppointments()
+    {
+        Guid clientUserId = Guid.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
+        return Ok(appointmentBll.GetMyAppointments(clientUserId));
+    }
+
+    [HttpGet]
+    [Authorize(Policy = "Staff")]
+    public ActionResult<List<AppointmentResponse>> GetAppointmentsByStaff(Guid staffUserId)
+    {
+        return Ok(appointmentBll.GetAppointmentsByStaff(staffUserId));
+    }
+
+    [HttpPut]
+    [Authorize]
+    public ActionResult Cancel(Guid appointmentId)
+    {
+        Guid clientUserId = Guid.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
+        appointmentBll.CancelAppointment(clientUserId, appointmentId);
+        return Ok();
+    }
+
+    [HttpPut]
+    [Authorize(Policy = "Staff")]
+    public ActionResult UpdateStatus(Guid appointmentId, PostUpdateAppointmentStatusModel model)
+    {
+        appointmentBll.UpdateAppointmentStatus(appointmentId, model.Status);
+        return Ok();
     }
 }

@@ -1,7 +1,8 @@
 namespace BookSmartBackEnd.Models.POST;
 
-public class PostAppointmentModel
+public class PostAppointmentForClientModel
 {
+    public required Guid ClientUserId { get; set; }
     public required Guid ServiceId { get; set; }
     public Guid? ScheduleId { get; set; }
     public Guid? ScheduleOverrideId { get; set; }
