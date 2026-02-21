@@ -1,27 +1,16 @@
 using BookSmartBackEnd.BusinessLogic.Interfaces;
-using BookSmartBackEnd.Constants;
 using BookSmartBackEnd.Models.GET;
 using BookSmartBackEnd.Models.POST;
-using BookSmartBackEndDatabase;
 using BookSmartBackEndDatabase.Models;
-using Microsoft.EntityFrameworkCore;
+using BookSmartBackEndDatabase.Repositories;
 
 namespace BookSmartBackEnd.BusinessLogic
 {
-    internal sealed class ScheduleOverrideBll(BookSmartContext bookSmartContext) : IScheduleOverrideBll
+    internal sealed class ScheduleOverrideBll(IUserRepository userRepository, IScheduleOverrideRepository scheduleOverrideRepository) : IScheduleOverrideBll
     {
         public void CreateScheduleOverride(PostScheduleOverrideModel data)
         {
-            User user = bookSmartContext.USERS
-                .Include(u => u.USER_ROLES)
-                .FirstOrDefault(u => u.USER_ID == data.UserId)
-                ?? throw new ArgumentException("User not found.");
-
-            bool isStaff = user.USER_ROLES.Any(r => r.ROLE_ROLETYPEID == RoleTypes.STAFF);
-            if (!isStaff)
-            {
-                throw new ArgumentException("User does not have the Staff role.");
-            }
+            userRepository.GetStaffUser(data.UserId);
 
             ScheduleOverride scheduleOverride = new ScheduleOverride
             {
@@ -36,14 +25,12 @@ namespace BookSmartBackEnd.BusinessLogic
                 SCHEDULEOVERRIDE_DELETED = false
             };
 
-            bookSmartContext.SCHEDULEOVERRIDES.Add(scheduleOverride);
-            bookSmartContext.SaveChanges();
+            scheduleOverrideRepository.Add(scheduleOverride);
         }
 
         public ScheduleOverrideResponse? GetScheduleOverride(Guid scheduleOverrideId)
         {
-            ScheduleOverride? scheduleOverride = bookSmartContext.SCHEDULEOVERRIDES
-                .FirstOrDefault(s => s.SCHEDULEOVERRIDE_ID == scheduleOverrideId && !s.SCHEDULEOVERRIDE_DELETED);
+            ScheduleOverride? scheduleOverride = scheduleOverrideRepository.GetById(scheduleOverrideId);
 
             if (scheduleOverride == null) return null;
 
@@ -52,19 +39,15 @@ namespace BookSmartBackEnd.BusinessLogic
 
         public List<ScheduleOverrideResponse> GetScheduleOverridesByStaff(Guid staffUserId)
         {
-            return bookSmartContext.SCHEDULEOVERRIDES
-                .Where(s => s.SCHEDULEOVERRIDE_USERID == staffUserId && !s.SCHEDULEOVERRIDE_DELETED)
+            return scheduleOverrideRepository.GetByStaff(staffUserId)
                 .Select(s => MapToResponse(s))
                 .ToList();
         }
 
         public void UpdateScheduleOverride(Guid scheduleOverrideId, PostScheduleOverrideModel data)
         {
-            ScheduleOverride scheduleOverride = bookSmartContext.SCHEDULEOVERRIDES
-                .FirstOrDefault(s => s.SCHEDULEOVERRIDE_ID == scheduleOverrideId && !s.SCHEDULEOVERRIDE_DELETED)
+            ScheduleOverride scheduleOverride = scheduleOverrideRepository.GetById(scheduleOverrideId)
                 ?? throw new ArgumentException("Schedule override not found.");
-
-            bookSmartContext.SCHEDULEOVERRIDES.Entry(scheduleOverride).State = EntityState.Modified;
 
             scheduleOverride.SCHEDULEOVERRIDE_DATE = data.Date;
             scheduleOverride.SCHEDULEOVERRIDE_STARTTIME = data.StartTime;
@@ -72,21 +55,18 @@ namespace BookSmartBackEnd.BusinessLogic
             scheduleOverride.SCHEDULEOVERRIDE_ISAVAILABLE = data.IsAvailable;
             scheduleOverride.SCHEDULEOVERRIDE_UPDATED = DateTime.UtcNow;
 
-            bookSmartContext.SaveChanges();
+            scheduleOverrideRepository.Update(scheduleOverride);
         }
 
         public void DeleteScheduleOverride(Guid scheduleOverrideId)
         {
-            ScheduleOverride scheduleOverride = bookSmartContext.SCHEDULEOVERRIDES
-                .FirstOrDefault(s => s.SCHEDULEOVERRIDE_ID == scheduleOverrideId && !s.SCHEDULEOVERRIDE_DELETED)
+            ScheduleOverride scheduleOverride = scheduleOverrideRepository.GetById(scheduleOverrideId)
                 ?? throw new ArgumentException("Schedule override not found.");
-
-            bookSmartContext.SCHEDULEOVERRIDES.Entry(scheduleOverride).State = EntityState.Modified;
 
             scheduleOverride.SCHEDULEOVERRIDE_DELETED = true;
             scheduleOverride.SCHEDULEOVERRIDE_UPDATED = DateTime.UtcNow;
 
-            bookSmartContext.SaveChanges();
+            scheduleOverrideRepository.Update(scheduleOverride);
         }
 
         private static ScheduleOverrideResponse MapToResponse(ScheduleOverride scheduleOverride)

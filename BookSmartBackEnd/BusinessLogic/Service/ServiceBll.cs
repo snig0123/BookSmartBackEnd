@@ -1,27 +1,16 @@
 using BookSmartBackEnd.BusinessLogic.Interfaces;
-using BookSmartBackEnd.Constants;
 using BookSmartBackEnd.Models.GET;
 using BookSmartBackEnd.Models.POST;
-using BookSmartBackEndDatabase;
 using BookSmartBackEndDatabase.Models;
-using Microsoft.EntityFrameworkCore;
+using BookSmartBackEndDatabase.Repositories;
 
 namespace BookSmartBackEnd.BusinessLogic
 {
-    internal sealed class ServiceBll(BookSmartContext bookSmartContext) : IServiceBll
+    internal sealed class ServiceBll(IUserRepository userRepository, IServiceRepository serviceRepository) : IServiceBll
     {
         public void CreateService(PostServiceModel data)
         {
-            User user = bookSmartContext.USERS
-                .Include(u => u.USER_ROLES)
-                .FirstOrDefault(u => u.USER_ID == data.StaffUserId)
-                ?? throw new ArgumentException("User not found.");
-
-            bool isStaff = user.USER_ROLES.Any(r => r.ROLE_ROLETYPEID == RoleTypes.STAFF);
-            if (!isStaff)
-            {
-                throw new ArgumentException("User does not have the Staff role.");
-            }
+            User user = userRepository.GetStaffUser(data.StaffUserId);
 
             Service service = new Service
             {
@@ -38,18 +27,16 @@ namespace BookSmartBackEnd.BusinessLogic
                 SERVICE_DELETED = false
             };
 
-            bookSmartContext.SERVICES.Add(service);
-            bookSmartContext.SaveChanges();
+            serviceRepository.Add(service);
         }
 
         public ServiceResponse? GetService(Guid serviceId, bool excludeUnavailable = false)
         {
-            Service? service = bookSmartContext.SERVICES
-                .FirstOrDefault(s => s.SERVICE_ID == serviceId && !s.SERVICE_DELETED);
+            Service? service = serviceRepository.GetById(serviceId);
 
             if (service == null) return null;
 
-            bool isAvailable = IsServiceAvailable(serviceId);
+            bool isAvailable = serviceRepository.IsAvailable(serviceId);
 
             if (excludeUnavailable && !isAvailable) return null;
 
@@ -58,12 +45,10 @@ namespace BookSmartBackEnd.BusinessLogic
 
         public List<ServiceResponse> GetServicesByBusiness(Guid businessId, bool excludeUnavailable = false)
         {
-            List<Service> services = bookSmartContext.SERVICES
-                .Where(s => s.SERVICE_BUSINESSID == businessId && !s.SERVICE_DELETED)
-                .ToList();
+            List<Service> services = serviceRepository.GetByBusiness(businessId);
 
             List<Guid> serviceIds = services.Select(s => s.SERVICE_ID).ToList();
-            HashSet<Guid> availableIds = GetAvailableServiceIds(serviceIds);
+            HashSet<Guid> availableIds = serviceRepository.GetAvailableIds(serviceIds);
 
             return services
                 .Where(s => !excludeUnavailable || availableIds.Contains(s.SERVICE_ID))
@@ -73,11 +58,8 @@ namespace BookSmartBackEnd.BusinessLogic
 
         public void UpdateService(Guid serviceId, PostServiceModel data)
         {
-            Service service = bookSmartContext.SERVICES
-                .FirstOrDefault(s => s.SERVICE_ID == serviceId && !s.SERVICE_DELETED)
+            Service service = serviceRepository.GetById(serviceId)
                 ?? throw new ArgumentException("Service not found.");
-
-            bookSmartContext.SERVICES.Entry(service).State = EntityState.Modified;
 
             service.SERVICE_NAME = data.Name;
             service.SERVICE_DESCRIPTION = data.Description;
@@ -86,58 +68,19 @@ namespace BookSmartBackEnd.BusinessLogic
             service.SERVICE_CAPACITY = data.Capacity;
             service.SERVICE_UPDATED = DateTime.UtcNow;
 
-            bookSmartContext.SaveChanges();
+            serviceRepository.Update(service);
         }
 
         public void DeleteService(Guid serviceId)
         {
-            Service service = bookSmartContext.SERVICES
-                .FirstOrDefault(s => s.SERVICE_ID == serviceId && !s.SERVICE_DELETED)
+            Service service = serviceRepository.GetById(serviceId)
                 ?? throw new ArgumentException("Service not found.");
-
-            bookSmartContext.SERVICES.Entry(service).State = EntityState.Modified;
 
             service.SERVICE_DELETED = true;
             service.SERVICE_ACTIVE = false;
             service.SERVICE_UPDATED = DateTime.UtcNow;
 
-            bookSmartContext.SaveChanges();
-        }
-
-        private bool IsServiceAvailable(Guid serviceId)
-        {
-            return bookSmartContext.SERVICESCHEDULES
-                .Any(ss => ss.SERVICESCHEDULE_SERVICEID == serviceId
-                        && !ss.SERVICESCHEDULE_DELETED
-                        && !ss.SERVICESCHEDULE_SCHEDULE.SCHEDULE_DELETED
-                        && ss.SERVICESCHEDULE_SCHEDULE.SCHEDULE_ACTIVE)
-                ||
-                bookSmartContext.SERVICESCHEDULEOVERRIDES
-                .Any(sso => sso.SERVICESCHEDULEOVERRIDE_SERVICEID == serviceId
-                         && !sso.SERVICESCHEDULEOVERRIDE_DELETED
-                         && !sso.SERVICESCHEDULEOVERRIDE_SCHEDULEOVERRIDE.SCHEDULEOVERRIDE_DELETED
-                         && sso.SERVICESCHEDULEOVERRIDE_SCHEDULEOVERRIDE.SCHEDULEOVERRIDE_ISAVAILABLE);
-        }
-
-        private HashSet<Guid> GetAvailableServiceIds(List<Guid> serviceIds)
-        {
-            HashSet<Guid> result = bookSmartContext.SERVICESCHEDULES
-                .Where(ss => serviceIds.Contains(ss.SERVICESCHEDULE_SERVICEID)
-                          && !ss.SERVICESCHEDULE_DELETED
-                          && !ss.SERVICESCHEDULE_SCHEDULE.SCHEDULE_DELETED
-                          && ss.SERVICESCHEDULE_SCHEDULE.SCHEDULE_ACTIVE)
-                .Select(ss => ss.SERVICESCHEDULE_SERVICEID)
-                .ToHashSet();
-
-            result.UnionWith(bookSmartContext.SERVICESCHEDULEOVERRIDES
-                .Where(sso => serviceIds.Contains(sso.SERVICESCHEDULEOVERRIDE_SERVICEID)
-                           && !sso.SERVICESCHEDULEOVERRIDE_DELETED
-                           && !sso.SERVICESCHEDULEOVERRIDE_SCHEDULEOVERRIDE.SCHEDULEOVERRIDE_DELETED
-                           && sso.SERVICESCHEDULEOVERRIDE_SCHEDULEOVERRIDE.SCHEDULEOVERRIDE_ISAVAILABLE)
-                .Select(sso => sso.SERVICESCHEDULEOVERRIDE_SERVICEID)
-                .ToHashSet());
-
-            return result;
+            serviceRepository.Update(service);
         }
 
         private static ServiceResponse MapToResponse(Service service, bool isAvailable)

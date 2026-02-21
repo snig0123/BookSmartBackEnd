@@ -5,6 +5,7 @@ using BookSmartBackEnd.Authentication;
 using BookSmartBackEnd.BusinessLogic;
 using BookSmartBackEnd.BusinessLogic.Interfaces;
 using BookSmartBackEndDatabase;
+using BookSmartBackEndDatabase.Repositories;
 using Microsoft.AspNetCore.DataProtection;
 using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
@@ -43,6 +44,12 @@ builder.Services.AddDbContext<BookSmartContext>(options =>
 );
 
 //Dependency Injection
+builder.Services.AddScoped<IUserRepository, UserRepository>();
+builder.Services.AddScoped<IServiceRepository, ServiceRepository>();
+builder.Services.AddScoped<IScheduleRepository, ScheduleRepository>();
+builder.Services.AddScoped<IScheduleOverrideRepository, ScheduleOverrideRepository>();
+builder.Services.AddScoped<IServiceScheduleRepository, ServiceScheduleRepository>();
+
 builder.Services.AddScoped<IUserCreationService, UserCreationService>();
 builder.Services.AddScoped<IUserBll, UserBll>();
 builder.Services.AddScoped<IStaffBll, StaffBll>();

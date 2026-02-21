@@ -1,15 +1,14 @@
 using BookSmartBackEnd.Authentication;
 using BookSmartBackEnd.BusinessLogic.Interfaces;
-using BookSmartBackEnd.Constants;
+using BookSmartBackEndDatabase.Constants;
 using BookSmartBackEnd.Models.GET;
 using BookSmartBackEnd.Models.POST;
-using BookSmartBackEndDatabase;
 using BookSmartBackEndDatabase.Models;
-using Microsoft.EntityFrameworkCore;
+using BookSmartBackEndDatabase.Repositories;
 
 namespace BookSmartBackEnd.BusinessLogic
 {
-    internal sealed class UserBll(IUserCreationService userCreationService, BookSmartContext bookSmartContext, JwtHelper jwtHelper) : IUserBll
+    internal sealed class UserBll(IUserCreationService userCreationService, IUserRepository userRepository, JwtHelper jwtHelper) : IUserBll
     {
         public void RegisterUser(PostRegisterModel data)
         {
@@ -18,10 +17,7 @@ namespace BookSmartBackEnd.BusinessLogic
 
         public UserProfile? GetUserProfile(Guid userId)
         {
-            User? user = bookSmartContext.USERS
-                .Include(u => u.USER_ROLES)
-                .ThenInclude(r => r.ROLE_ROLETYPE)
-                .FirstOrDefault(u => u.USER_ID == userId);
+            User? user = userRepository.GetByIdWithRolesAndRoleTypes(userId);
 
             if (user == null)
             {
@@ -39,14 +35,7 @@ namespace BookSmartBackEnd.BusinessLogic
 
         public LoginResult? LoginUser(string email, string password)
         {
-            //guard and email validation
-
-            //Get the business id from the jwt and pass that in the where clause
-
-            BookSmartBackEndDatabase.Models.User? user = bookSmartContext.USERS
-                .Include(userRole => userRole.USER_ROLES)
-                .ThenInclude(role => role.ROLE_ROLETYPE)
-                .FirstOrDefault(a => a.USER_EMAIL == email && a.USER_PASSWORD == password);
+            User? user = userRepository.GetByEmailAndPasswordWithRoles(email, password);
 
             if (user == null)
             {

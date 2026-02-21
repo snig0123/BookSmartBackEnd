@@ -1,12 +1,13 @@
 using BookSmartBackEnd.BusinessLogic.Interfaces;
 using BookSmartBackEnd.Models.POST;
 using BookSmartBackEnd.Utilities;
-using BookSmartBackEndDatabase;
+using BookSmartBackEndDatabase.Constants;
 using BookSmartBackEndDatabase.Models;
+using BookSmartBackEndDatabase.Repositories;
 
 namespace BookSmartBackEnd.BusinessLogic
 {
-    internal sealed class UserCreationService(BookSmartContext bookSmartContext) : IUserCreationService
+    internal sealed class UserCreationService(IUserRepository userRepository) : IUserCreationService
     {
         public void CreateUser(PostRegisterModel data, Guid roleTypeId)
         {
@@ -14,7 +15,7 @@ namespace BookSmartBackEnd.BusinessLogic
 
             Guid newUserId = Guid.NewGuid();
 
-            bookSmartContext.Add(new User
+            userRepository.Create(new User
             {
                 USER_ID = newUserId,
                 USER_TITLE = "Mr",
@@ -23,8 +24,8 @@ namespace BookSmartBackEnd.BusinessLogic
                 USER_EMAIL = data.EMAIL,
                 USER_PASSWORD = data.PASSWORD,
                 BUSINESS_ID = default(Guid), //TODO Get this from the client
-                USER_CREATED = DateTime.Now,
-                USER_UPDATED = DateTime.Now,
+                USER_CREATED = DateTime.UtcNow,
+                USER_UPDATED = DateTime.UtcNow,
                 USER_DELETED = false,
                 USER_LOCKED = false,
                 USER_LASTLOGIN = null,
@@ -38,8 +39,6 @@ namespace BookSmartBackEnd.BusinessLogic
                     }
                 }
             });
-
-            bookSmartContext.SaveChanges();
         }
     }
 }
