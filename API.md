@@ -104,6 +104,124 @@ Get the authenticated user's profile information. The user ID is read from the J
 
 ---
 
+### Client
+
+#### `POST /Client/Create`
+
+Create a new client user account. Requires Staff role.
+
+**Auth:** Bearer token (Staff policy)
+
+**Request body:**
+
+```json
+{
+  "forename": "string",
+  "surname": "string",
+  "email": "string",
+  "password": "string"
+}
+```
+
+**Responses:** `201 Created`
+
+---
+
+#### `GET /Client/GetAll`
+
+Get all non-deleted clients.
+
+**Auth:** Bearer token (Staff policy)
+
+**Responses:**
+
+- `200 OK`
+
+```json
+[
+  {
+    "clientId": "guid",
+    "forename": "string",
+    "surname": "string",
+    "email": "string",
+    "telephone": "string | null"
+  }
+]
+```
+
+---
+
+#### `GET /Client/GetById`
+
+Get a single client by ID.
+
+**Auth:** Bearer token (Staff policy)
+
+**Query parameters:**
+
+| Parameter  | Type | Required |
+|------------|------|----------|
+| `clientId` | guid | Yes      |
+
+**Responses:**
+
+- `200 OK`
+
+```json
+{
+  "clientId": "guid",
+  "forename": "string",
+  "surname": "string",
+  "email": "string",
+  "telephone": "string | null"
+}
+```
+
+---
+
+#### `PUT /Client/Update`
+
+Update a client's details.
+
+**Auth:** Bearer token (Staff policy)
+
+**Query parameters:**
+
+| Parameter  | Type | Required |
+|------------|------|----------|
+| `clientId` | guid | Yes      |
+
+**Request body:**
+
+```json
+{
+  "forename": "string",
+  "surname": "string",
+  "email": "string",
+  "telephone": "string | null"
+}
+```
+
+**Responses:** `200 OK`
+
+---
+
+#### `DELETE /Client/Delete`
+
+Soft delete a client. Sets the user as deleted.
+
+**Auth:** Bearer token (Staff policy)
+
+**Query parameters:**
+
+| Parameter  | Type | Required |
+|------------|------|----------|
+| `clientId` | guid | Yes      |
+
+**Responses:** `200 OK`
+
+---
+
 ### Staff
 
 #### `POST /Staff/Create`

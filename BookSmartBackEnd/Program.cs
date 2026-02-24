@@ -46,6 +46,7 @@ builder.Services.AddDbContext<BookSmartContext>(options =>
 //Dependency Injection
 builder.Services.AddScoped<IAppointmentRepository, AppointmentRepository>();
 builder.Services.AddScoped<IUserRepository, UserRepository>();
+builder.Services.AddScoped<IClientRepository, ClientRepository>();
 builder.Services.AddScoped<IServiceRepository, ServiceRepository>();
 builder.Services.AddScoped<IScheduleRepository, ScheduleRepository>();
 builder.Services.AddScoped<IScheduleOverrideRepository, ScheduleOverrideRepository>();
@@ -54,6 +55,7 @@ builder.Services.AddScoped<IServiceScheduleRepository, ServiceScheduleRepository
 builder.Services.AddScoped<IUserCreationService, UserCreationService>();
 builder.Services.AddScoped<IUserBll, UserBll>();
 builder.Services.AddScoped<IStaffBll, StaffBll>();
+builder.Services.AddScoped<IClientBll, ClientBll>();
 builder.Services.AddScoped<IServiceBll, ServiceBll>();
 builder.Services.AddScoped<IScheduleBll, ScheduleBll>();
 builder.Services.AddScoped<IAppointmentBll, AppointmentBll>();
