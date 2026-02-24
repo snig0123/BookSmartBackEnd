@@ -4,6 +4,7 @@ public class AppointmentResponse
 {
     public required Guid AppointmentId { get; set; }
     public required Guid ClientUserId { get; set; }
+    public required string ClientName { get; set; }
     public required Guid StaffUserId { get; set; }
     public required Guid ServiceId { get; set; }
     public required string ServiceName { get; set; }

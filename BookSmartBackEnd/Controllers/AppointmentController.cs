@@ -35,9 +35,17 @@ public class AppointmentController(IAppointmentBll appointmentBll) : ControllerB
         Guid clientUserId = Guid.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
         return Ok(appointmentBll.GetMyAppointments(clientUserId));
     }
-
+    
     [HttpGet]
     [Authorize(Policy = "Staff")]
+    public ActionResult<List<AppointmentResponse>> GetStaffAppointments()
+    {
+        Guid staffUserId = Guid.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
+        return Ok(appointmentBll.GetAppointmentsByStaff(staffUserId));
+    }
+
+    [HttpGet]
+    [Authorize(Policy = "Admin")]
     public ActionResult<List<AppointmentResponse>> GetAppointmentsByStaff(Guid staffUserId)
     {
         return Ok(appointmentBll.GetAppointmentsByStaff(staffUserId));

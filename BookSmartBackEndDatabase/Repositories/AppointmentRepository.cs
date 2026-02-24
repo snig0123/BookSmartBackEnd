@@ -24,17 +24,19 @@ public class AppointmentRepository(BookSmartContext context) : IAppointmentRepos
     public List<Appointment> GetByStaff(Guid staffUserId)
     {
         return context.APPOINTMENTS
+            .Include(a => a.APPOINTMENT_CLIENTUSER)
             .Include(a => a.APPOINTMENT_SERVICE)
             .Where(a => a.APPOINTMENT_STAFFUSERID == staffUserId && !a.APPOINTMENT_DELETED)
             .ToList();
     }
 
-    public int CountActiveForSlot(Guid serviceId, Guid? scheduleId, Guid? scheduleOverrideId)
+    public int CountActiveForSlot(Guid serviceId, Guid? scheduleId, Guid? scheduleOverrideId, DateTime requestedStartTime)
     {
         return context.APPOINTMENTS
             .Count(a => a.APPOINTMENT_SERVICEID == serviceId
                      && a.APPOINTMENT_SCHEDULEID == scheduleId
                      && a.APPOINTMENT_SCHEDULEOVERRIDEID == scheduleOverrideId
+                     && a.APPOINTMENT_STARTDATETIME == requestedStartTime
                      && a.APPOINTMENT_STATUS != AppointmentStatuses.Cancelled
                      && !a.APPOINTMENT_DELETED);
     }

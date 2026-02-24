@@ -757,19 +757,184 @@ Get all active schedule overrides linked to a given service.
 
 ### Appointment
 
-#### `POST /Appointment/Create`
+#### `POST /Appointment/Book`
 
-Create a new appointment.
+Book an appointment for the authenticated user.
 
-**Auth:** None
+**Auth:** Bearer token (any authenticated user)
 
 **Request body:**
 
 ```json
 {
-  "appt_DATE": "datetime (ISO 8601)",
-  "appt_COMMENT": "string | null"
+  "serviceId": "guid",
+  "scheduleId": "guid | null",
+  "scheduleOverrideId": "guid | null",
+  "requestedStartTime": "datetime (ISO 8601)",
+  "comment": "string | null"
 }
 ```
 
 **Responses:** `201 Created`
+
+---
+
+#### `POST /Appointment/BookForClient`
+
+Book an appointment on behalf of a client. Requires Staff role.
+
+**Auth:** Bearer token (Staff policy)
+
+**Request body:**
+
+```json
+{
+  "clientUserId": "guid",
+  "serviceId": "guid",
+  "scheduleId": "guid | null",
+  "scheduleOverrideId": "guid | null",
+  "requestedStartTime": "datetime (ISO 8601)",
+  "comment": "string | null"
+}
+```
+
+**Responses:** `201 Created`
+
+---
+
+#### `GET /Appointment/GetMyAppointments`
+
+Get all appointments for the authenticated user. The user ID is read from the JWT token.
+
+**Auth:** Bearer token (any authenticated user)
+
+**Responses:**
+
+- `200 OK`
+
+```json
+[
+  {
+    "appointmentId": "guid",
+    "clientUserId": "guid",
+    "staffUserId": "guid",
+    "serviceId": "guid",
+    "serviceName": "string",
+    "scheduleId": "guid | null",
+    "scheduleOverrideId": "guid | null",
+    "startDateTime": "datetime (ISO 8601)",
+    "endDateTime": "datetime (ISO 8601)",
+    "status": "string",
+    "comment": "string | null",
+    "created": "datetime (ISO 8601)"
+  }
+]
+```
+
+---
+
+#### `GET /Appointment/GetStaffAppointments`
+
+Get all appointments for the authenticated staff member. The staff user ID is read from the JWT token.
+
+**Auth:** Bearer token (Staff policy)
+
+**Responses:**
+
+- `200 OK`
+
+```json
+[
+  {
+    "appointmentId": "guid",
+    "clientUserId": "guid",
+    "staffUserId": "guid",
+    "serviceId": "guid",
+    "serviceName": "string",
+    "scheduleId": "guid | null",
+    "scheduleOverrideId": "guid | null",
+    "startDateTime": "datetime (ISO 8601)",
+    "endDateTime": "datetime (ISO 8601)",
+    "status": "string",
+    "comment": "string | null",
+    "created": "datetime (ISO 8601)"
+  }
+]
+```
+
+---
+
+#### `GET /Appointment/GetAppointmentsByStaff`
+
+Get all appointments for a given staff member. Requires Admin role.
+
+**Auth:** Bearer token (Admin policy)
+
+**Query parameters:**
+
+| Parameter     | Type | Required |
+|---------------|------|----------|
+| `staffUserId` | guid | Yes      |
+
+**Responses:**
+
+- `200 OK`
+
+```json
+[
+  {
+    "appointmentId": "guid",
+    "clientUserId": "guid",
+    "staffUserId": "guid",
+    "serviceId": "guid",
+    "serviceName": "string",
+    "scheduleId": "guid | null",
+    "scheduleOverrideId": "guid | null",
+    "startDateTime": "datetime (ISO 8601)",
+    "endDateTime": "datetime (ISO 8601)",
+    "status": "string",
+    "comment": "string | null",
+    "created": "datetime (ISO 8601)"
+  }
+]
+```
+
+---
+
+#### `PUT /Appointment/Cancel`
+
+Cancel an appointment. The user ID is read from the JWT token to verify ownership.
+
+**Auth:** Bearer token (any authenticated user)
+
+**Query parameters:**
+
+| Parameter       | Type | Required |
+|-----------------|------|----------|
+| `appointmentId` | guid | Yes      |
+
+**Responses:** `200 OK`
+
+---
+
+#### `PUT /Appointment/UpdateStatus`
+
+Update the status of an appointment. Requires Staff role.
+
+**Auth:** Bearer token (Staff policy)
+
+**Query parameters:**
+
+| Parameter       | Type | Required |
+|-----------------|------|----------|
+| `appointmentId` | guid | Yes      |
+
+**Request body:**
+
+```json
+{
+  "status": "string"
+}
+```
+
+**Responses:** `200 OK`

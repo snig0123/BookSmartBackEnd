@@ -110,7 +110,7 @@ namespace BookSmartBackEnd.BusinessLogic
                 staffUserId = scheduleOverride.SCHEDULEOVERRIDE_USERID;
             }
 
-            int bookedCount = appointmentRepository.CountActiveForSlot(serviceId, scheduleId, scheduleOverrideId);
+            int bookedCount = appointmentRepository.CountActiveForSlot(serviceId, scheduleId, scheduleOverrideId, requestedStartTime);
             if (bookedCount >= service.SERVICE_CAPACITY)
                 throw new InvalidOperationException("Service is at capacity for this slot.");
 
@@ -184,6 +184,7 @@ namespace BookSmartBackEnd.BusinessLogic
             {
                 AppointmentId = appointment.APPOINTMENT_ID,
                 ClientUserId = appointment.APPOINTMENT_CLIENTUSERID,
+                ClientName = appointment.APPOINTMENT_CLIENTUSER.USER_FORENAME + " " + appointment.APPOINTMENT_CLIENTUSER.USER_SURNAME,
                 StaffUserId = appointment.APPOINTMENT_STAFFUSERID,
                 ServiceId = appointment.APPOINTMENT_SERVICEID,
                 ServiceName = appointment.APPOINTMENT_SERVICE.SERVICE_NAME,
